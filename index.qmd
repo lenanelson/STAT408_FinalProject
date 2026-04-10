@@ -3,6 +3,7 @@ title: "Streamflow Calculations"
 format: html
 editor_options: 
   chunk_output_type: console
+embed-resources: true
 ---
 
 I will write some code here to explain my project. 
