@@ -1,18 +1,50 @@
 ---
-title: "Streamflow Calculations"
+title: "Streamflow calculations using the dilution tracer method"
 format: html
 editor_options: 
   chunk_output_type: console
 embed-resources: true
 ---
 
-I will write some code here to explain my project. 
-```{r}
-library(tidyverse)
+# Overview
+Calculating streamflow can be difficult in small mountainous streams due to changing flows, rocky bed surfaces, and steep, fast flow sections followed by pools. While there are a multitude of ways one can calculate streamflow, a standard procedure for calculating streamflow in small mountainous streams is using the dilution tracer method.
 
-x <- 5
-y <- 2
+This method involves injecting the stream with a known amount of salt and measuring the electrical conductivity. A sensor is placed in the stream and starts collecting the background conductivity of the stream. Then, a known amount of salt is dissolved in a bucket of the stream water and is dumped upstream of the sensor. As the water passes past the sensor, the electrical conductivity will increase and then drop back down to the baseline conductivity once all the salt has passed through. This is called the breakthrough curve. 
+Discharge (Q), or streamflow, can then be calculated from the area under the curve, the amount of time it took, and the mass of the salt. 
 
-z <- x-y
-```
+However, the sensor reads the electrical conductivity in uS/cm. So in order to be able to use the electrical conductivity, the values need to be applied to a calibration curve to covert to concentration. From there, discharge can be calculated in g/L. 
+
+While there are textbook standards of a calibration curve, it is more accurate to create a calibration curve for your specific sensor. 
+
+This can be completed in the lab using DI water and dissolving small amounts of salt into the water. 
+
+While this process sounds relatively simple, when I was trying to calculate streamflow with data I collected, there was no standard code I could follow. Thus, from many trials and error I was able to:
+
+- create a calibration curve
+- calculate discharge
+
+Therefore, the purpose of this tutorial is to walk through how to create a calibration curve from data collected in the lab. Then how to use the slope from the calibration curve and apply it to the code for calculating discharge. 
+
+The data used in this tutorial is the raw data collected when creating the calibration curve. For 5 different salt concentrations (0g, 0.5g, 1.0g, 1.5g, and 2g) the data the sensor collected was:
+
+- the datetime
+- electrical conductivity in uS/cm
+- temperature
+
+The stream dilution tracer data is an example dataset of the data the sensor collects which is:
+
+- the datetime
+- electrical conductivity in uS/cm
+- temperature
+
+All datasets will be read in from a Microsoft Excel .csv file. Metadata sheets from the calibration data and streamflow are also included which include the important times needed during the calculations. 
+
+# Calibration Curve
+
+# Discharge Calculations
+
+# Summary
+
+
+
 
