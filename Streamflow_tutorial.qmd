@@ -1,0 +1,17 @@
+---
+title: "Streamflow Calculations"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+I will write some code here to explain my project. 
+```{r}
+library(tidyverse)
+
+x <- 5
+y <- 2
+
+z <- x-y
+```
+
