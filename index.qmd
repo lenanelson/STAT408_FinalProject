@@ -45,6 +45,7 @@ All datasets will be read in from a .csv file. Metadata sheets from the calibrat
 
 First we need to install and load in the packages needed.
 ```{r}
+#| output: false
 #uncomment any of these that you don't already have installed
 #install.packages("tidyverse") 
 #install.packages("hms")
@@ -58,16 +59,23 @@ library(pracma)
 
 Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water, it shows the salt intervals, and was the second test we conducted.
 ```{r}
+#| warning: false
 # create a new dataframe by reading in the csv file DI_roomtemp_intervals_test2.csv
-cal <- read_csv("DI_roomtemp_intervals_test2.csv")
+cal <- read_csv("DI_roomtemp_intervals_test2.csv", show_col_types = FALSE)
+
+head(cal)
 ```
 Hmmm... well that doesn't look right. Why don't we read in the csv, skip the first column so the data is properly categorized into columns, and only keep columns 2 through 4, which is the datetime, conductivity, and temperature. 
 
 ```{r}
+#| warning: false
 #re-read in the csv with better data organization
 cal <- read_csv("DI_roomtemp_intervals_test2.csv",
                 skip = 1,
-                col_select = 2:4)
+                col_select = 2:4,
+                show_col_types = FALSE)
+
+head(cal)
 ```
 Okay that is better - but the column names are far too long and complicated. Let's fix that! We want column one to be titled "time", column 2 to be titled "conductivity_muS_cm", and column 3 to be "temperature_C". This gives informative titles that include the units of the measurements as well!
 
@@ -76,6 +84,8 @@ Okay that is better - but the column names are far too long and complicated. Let
 colnames(cal)[1] <- "time"
 colnames(cal)[2] <- "conductivity_muS_cm"
 colnames(cal)[3] <- "temperature_C"
+
+head(cal)
 ```
 
 ### Data exploration
@@ -200,6 +210,7 @@ Create a new dataframe called model (this is because we are using the linear reg
 
 ```{r}
 #Linear regression for data
+plot(milligram_values, conductivity_values)
 model <- lm(conductivity_values ~ milligram_values)
 abline(model, col = "red")
 ```
@@ -229,7 +240,7 @@ Now let's print the results so we can see what the values are!
 print(slope)
 print(intercept)
 ```
-Well those labels don't make a lot of sense. Let's try again using `cat` which allows you concatenate and print. To use the function, we are first putting the text we want into the "quotes followed by the dataframe we are using, and then we use "\n" to create a new line so everything isn't squished!
+Well those labels don't make a lot of sense. Let's try again using `cat` which allows you concatenate and print. To use the function, we are first putting the text we want into the "quote" followed by the dataframe we are using, and then we use `"\n"` to create a new line so everything isn't squished!
 
 If you want to know more, type `?cat` into the console! 
 

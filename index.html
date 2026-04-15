@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
 width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
 }
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -2191,8 +2226,8 @@ vertical-align: -.125em;
 
 <section id="overview" class="level1">
 <h1>Overview</h1>
-<p>Calculating streamflow can be difficult in small mountainous streams due to changing flows, rocky bed surfaces, and steep, fast flow sections followed by pools. While there are a multitude of ways one can calculate streamflow, a standard procedure for calculating streamflow in small mountainous streams is using the dilution tracer method.</p>
-<p>This method involves injecting the stream with a known amount of salt and measuring the electrical conductivity. A sensor is placed in the stream and starts collecting the background conductivity of the stream. Then, a known amount of salt is dissolved in a bucket of the stream water and is dumped upstream of the sensor. As the water passes past the sensor, the electrical conductivity will increase and then drop back down to the baseline conductivity once all the salt has passed through. This is called the breakthrough curve. Discharge (Q), or streamflow, can then be calculated from the area under the curve, the amount of time it took, and the mass of the salt.</p>
+<p>Calculating streamflow can be difficult in small mountainous streams due to changing flows, rocky bed surfaces, and steep, fast flowing sections followed by pools. While there are a multitude of ways one can calculate streamflow, a standard procedure for calculating streamflow is the dilution tracer method.</p>
+<p>This method involves injecting the stream with a known amount of salt and measuring the electrical conductivity. A sensor is placed in the stream and starts collecting the background conductivity of the stream. Then, a known amount of salt is dissolved in a bucket of the stream water and is dumped upstream of the sensor. As the water passes past the sensor, the electrical conductivity will increase and then drop back down to the baseline conductivity once all the salt has passed through. This is called the breakthrough curve. Discharge (Q), or streamflow, can then be calculated from the area under the curve and the mass of the salt.</p>
 <p>However, the sensor reads the electrical conductivity in uS/cm. So in order to be able to use the electrical conductivity, the values need to be applied to a calibration curve to covert to concentration. From there, discharge can be calculated in g/L.</p>
 <p>While there are textbook standards of a calibration curve, it is more accurate to create a calibration curve for your specific sensor.</p>
 <p>This can be completed in the lab using DI water and dissolving small amounts of salt into the water.</p>
@@ -2201,7 +2236,7 @@ vertical-align: -.125em;
 <li>create a calibration curve</li>
 <li>calculate discharge</li>
 </ul>
-<p>Therefore, the purpose of this tutorial is to walk through how to create a calibration curve from data collected in the lab. Then how to use the slope from the calibration curve and apply it to the code for calculating discharge.</p>
+<p>Therefore, the purpose of this tutorial is to walk through how to create a calibration curve from data collected in the lab. Then how to use the slope from the calibration curve and apply it to the calculations for calculating discharge.</p>
 <p>The data used in this tutorial is the raw data collected when creating the calibration curve. For 5 different salt concentrations (0g, 0.5g, 1.0g, 1.5g, and 2g) the data the sensor collected was:</p>
 <ul>
 <li>the datetime</li>
@@ -2214,10 +2249,348 @@ vertical-align: -.125em;
 <li>electrical conductivity in uS/cm</li>
 <li>temperature</li>
 </ul>
-<p>All datasets will be read in from a Microsoft Excel .csv file. Metadata sheets from the calibration data and streamflow are also included which include the important times needed during the calculations.</p>
+<p>All datasets will be read in from a .csv file. Metadata sheets from the calibration data and streamflow are also included which include the important times needed during the calculations.</p>
 </section>
 <section id="calibration-curve" class="level1">
 <h1>Calibration Curve</h1>
+<section id="read-in-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="read-in-the-data">Read in the data</h2>
+<p>First we need to install and load in the packages needed.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#uncomment any of these that you don&#39;t already have installed</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;tidyverse&quot;) </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;hms&quot;)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;pracma&quot;)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load in the packages</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hms)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pracma)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water, it shows the salt intervals, and was the second test we conducted.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a new dataframe by reading in the csv file DI_roomtemp_intervals_test2.csv</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cal <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;DI_roomtemp_intervals_test2.csv&quot;</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 1
+  `Plot Title: BridgerCreek_EC`                                                 
+  &lt;chr&gt;                                                                         
+1 #,Date Time, GMT-06:00,Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 1077833…
+2 1,03/24/26 11:32:34 AM,275.2,21.09,,,,,                                       
+3 2,03/24/26 11:32:35 AM,274.8,21.07,,,,,                                       
+4 3,03/24/26 11:32:36 AM,274.5,21.07,,,,,                                       
+5 4,03/24/26 11:32:37 AM,274.1,21.07,,,,,                                       
+6 5,03/24/26 11:32:38 AM,274.1,21.07,,,,,                                       </code></pre>
+</div>
+</div>
+<p>Hmmm… well that doesn’t look right. Why don’t we read in the csv, skip the first column so the data is properly categorized into columns, and only keep columns 2 through 4, which is the datetime, conductivity, and temperature.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#re-read in the csv with better data organization</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cal <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;DI_roomtemp_intervals_test2.csv&quot;</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  `Date Time, GMT-06:00` Full Range, μS/cm (LGR S/N: 10…¹ Temp, °C (LGR S/N: 1…²
+  &lt;chr&gt;                                             &lt;dbl&gt;                  &lt;dbl&gt;
+1 03/24/26 11:32:34 AM                               275.                   21.1
+2 03/24/26 11:32:35 AM                               275.                   21.1
+3 03/24/26 11:32:36 AM                               274.                   21.1
+4 03/24/26 11:32:37 AM                               274.                   21.1
+5 03/24/26 11:32:38 AM                               274.                   21.1
+6 03/24/26 11:32:39 AM                               274.                   21.0
+# ℹ abbreviated names:
+#   ¹​`Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332)`,
+#   ²​`Temp, °C (LGR S/N: 10778332, SEN S/N: 10778332)`</code></pre>
+</div>
+</div>
+<p>Okay that is better - but the column names are far too long and complicated. Let’s fix that! We want column one to be titled “time”, column 2 to be titled “conductivity_muS_cm”, and column 3 to be “temperature_C”. This gives informative titles that include the units of the measurements as well!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Clean up column names</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;time&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;conductivity_muS_cm&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;temperature_C&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  time                 conductivity_muS_cm temperature_C
+  &lt;chr&gt;                              &lt;dbl&gt;         &lt;dbl&gt;
+1 03/24/26 11:32:34 AM                275.          21.1
+2 03/24/26 11:32:35 AM                275.          21.1
+3 03/24/26 11:32:36 AM                274.          21.1
+4 03/24/26 11:32:37 AM                274.          21.1
+5 03/24/26 11:32:38 AM                274.          21.1
+6 03/24/26 11:32:39 AM                274.          21.0</code></pre>
+</div>
+</div>
+<section id="data-exploration" class="level3">
+<h3 class="anchored" data-anchor-id="data-exploration">Data exploration</h3>
+<p>Why don’t we go ahead and see what type of data we are working with using the <code>str()</code> function.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spc_tbl_ [2,117 × 3] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ time               : chr [1:2117] &quot;03/24/26 11:32:34 AM&quot; &quot;03/24/26 11:32:35 AM&quot; &quot;03/24/26 11:32:36 AM&quot; &quot;03/24/26 11:32:37 AM&quot; ...
+ $ conductivity_muS_cm: num [1:2117] 275 275 274 274 274 ...
+ $ temperature_C      : num [1:2117] 21.1 21.1 21.1 21.1 21.1 ...
+ - attr(*, &quot;spec&quot;)=
+  .. cols(
+  ..   `#` = col_skip(),
+  ..   `Date Time, GMT-06:00` = col_character(),
+  ..   `Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332)` = col_double(),
+  ..   `Temp, °C (LGR S/N: 10778332, SEN S/N: 10778332)` = col_double(),
+  ..   `Coupler Detached (LGR S/N: 10778332)` = col_skip(),
+  ..   `Coupler Attached (LGR S/N: 10778332)` = col_skip(),
+  ..   `Host Connected (LGR S/N: 10778332)` = col_skip(),
+  ..   `Stopped (LGR S/N: 10778332)` = col_skip(),
+  ..   `End Of File (LGR S/N: 10778332)` = col_skip()
+  .. )
+ - attr(*, &quot;problems&quot;)=&lt;externalptr&gt; </code></pre>
+</div>
+</div>
+<p>From this we can see that our time column is actually a character when we want it to be a time! Let’s fix that using the <code>as.POSIXct()</code>. Then let’s extract just the time stamp using <code>as_hms()</code> since we just need to work with hours, minutes, and seconds.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert time column to datetime</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>cal<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(cal<span class="sc">$</span>time, <span class="at">format =</span> <span class="st">&quot;%m/%d/%y %I:%M:%S %p&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>cal<span class="sc">$</span>time_only <span class="ot">&lt;-</span> <span class="fu">as_hms</span>(cal<span class="sc">$</span>time)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Why don’t we run some basic summary statistics to get a general idea about our data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      time                     conductivity_muS_cm temperature_C  
+ Min.   :2026-03-24 11:32:34   Min.   :  3.7       Min.   :20.71  
+ 1st Qu.:2026-03-24 11:41:23   1st Qu.: 41.1       1st Qu.:26.03  
+ Median :2026-03-24 11:50:12   Median :414.2       Median :26.41  
+ Mean   :2026-03-24 11:50:12   Mean   :386.9       Mean   :26.31  
+ 3rd Qu.:2026-03-24 11:59:01   3rd Qu.:669.0       3rd Qu.:26.81  
+ Max.   :2026-03-24 12:07:50   Max.   :884.6       Max.   :27.61  
+   time_only       
+ Min.   :11:32:34  
+ 1st Qu.:11:41:23  
+ Median :11:50:12  
+ Mean   :11:50:12  
+ 3rd Qu.:11:59:01  
+ Max.   :12:07:50  </code></pre>
+</div>
+</div>
+<p>Let’s check that everything looks good before we move on.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spc_tbl_ [2,117 × 4] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ time               : POSIXct[1:2117], format: &quot;2026-03-24 11:32:34&quot; &quot;2026-03-24 11:32:35&quot; ...
+ $ conductivity_muS_cm: num [1:2117] 275 275 274 274 274 ...
+ $ temperature_C      : num [1:2117] 21.1 21.1 21.1 21.1 21.1 ...
+ $ time_only          : &#39;hms&#39; num [1:2117] 11:32:34 11:32:35 11:32:36 11:32:37 ...
+  ..- attr(*, &quot;units&quot;)= chr &quot;secs&quot;
+ - attr(*, &quot;spec&quot;)=
+  .. cols(
+  ..   `#` = col_skip(),
+  ..   `Date Time, GMT-06:00` = col_character(),
+  ..   `Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332)` = col_double(),
+  ..   `Temp, °C (LGR S/N: 10778332, SEN S/N: 10778332)` = col_double(),
+  ..   `Coupler Detached (LGR S/N: 10778332)` = col_skip(),
+  ..   `Coupler Attached (LGR S/N: 10778332)` = col_skip(),
+  ..   `Host Connected (LGR S/N: 10778332)` = col_skip(),
+  ..   `Stopped (LGR S/N: 10778332)` = col_skip(),
+  ..   `End Of File (LGR S/N: 10778332)` = col_skip()
+  .. )
+ - attr(*, &quot;problems&quot;)=&lt;externalptr&gt; </code></pre>
+</div>
+</div>
+<p>Great! Looks like we are good to go.</p>
+</section>
+</section>
+<section id="finding-average-conductivity" class="level2">
+<h2 class="anchored" data-anchor-id="finding-average-conductivity">Finding average conductivity</h2>
+<p>To create our calibration curve, we need to find the average conductivity from our 5 salt samples:</p>
+<ul>
+<li>0 g</li>
+<li>0.5 g</li>
+<li>1.0 g</li>
+<li>1.5 g</li>
+<li>2.0 g</li>
+</ul>
+<p>For reference, the sensor was placed in a bucket with 5 L of DI water. At each salt increase, the sensor sat in the water for 5 minutes. The data is recorded in the “20260324_cal_metadata.docx” file. The 5 minutes was a buffer, so we will take the middle 3 minutes of the time range and take the average of that. For simplicity in this tutorial, I will provide the time ranges for each salt interval to use:</p>
+<ul>
+<li>11:34 to 11:38</li>
+<li>11:43 to 11:46</li>
+<li>11:50 to 11:53</li>
+<li>11:56 to 11:59</li>
+<li>12:02 to 12:05</li>
+</ul>
+<p>Now that we have the times, let’s calculate average conductivity for each interval. To do this, let’s define a new dataframe called cal_subset. We will use just the time_only variable and find the data that is greater than or equal to the lower time bound, and less than or equal to the upper time bound. We will then create a new dataframe called avg_xxxg that takes the mean conductivity_muS_cm in the cal_subet dataframe. We repeat this for each interval time and salt mass.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate average conductivity from 11:34 to 11:38</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is 0 g added salt</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:34:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:38:00&quot;</span>), ]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>avg_0g <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:43 to 11:46</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 0.5 g of added salt</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:43:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:46:00&quot;</span>), ]</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>avg_500mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:50 to 11:53</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 1.0 g of added salt</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:50:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:53:00&quot;</span>), ]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>avg_1000mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:56 to 11:59</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 1.5 g of added salt</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:56:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:59:00&quot;</span>), ]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>avg_1500mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># repeat for 12:02 to 12:05</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 2.0 g of added salt</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;12:02:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;12:05:00&quot;</span>), ]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>avg_2000mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s print these values using the <code>print()</code> function so we can visually see all the values.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_0g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11.79917</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_500mg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 235.9934</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_1000mg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 456.3558</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_1500mg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 669.1912</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_2000mg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 875.0735</code></pre>
+</div>
+</div>
+<p>Great now we have the average conductivity for each interval. Let’s plot those values!</p>
+</section>
+<section id="create-calibration-curve" class="level2">
+<h2 class="anchored" data-anchor-id="create-calibration-curve">Create calibration curve</h2>
+<p>First, let’s create a list of the salt values in milligrams. We will also create a list of the conductivity values in the same order as the salt values using the values stored in the data frames we created for each interval. Then we will just use the <code>plot()</code> function since we are working with two datasets that each contain only one variable. We will add axis titles using <code>xlab</code> and <code>ylab</code> and a main title using <code>main</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>milligram_values <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>, <span class="dv">1000</span>, <span class="dv">1500</span>, <span class="dv">2000</span>) <span class="co">#put the salt values into a list</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>conductivity_values <span class="ot">&lt;-</span> <span class="fu">c</span>(avg_0g, avg_500mg, avg_1000mg, avg_1500mg, avg_2000mg) <span class="co">#use the average conductivity values we generated earlier and put them into a list</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(milligram_values, conductivity_values, <span class="co">#use plot() since we are just working with basic x and y variables that are not in the same dataframe</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Milligram of NaCl&quot;</span>, </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Average Conductivity (µS/cm)&quot;</span>,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Calibration Curve for NaCl Solutions - Roomtemp DI&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img role="img" src="data:image/png;base64,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" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From first glance we can see that the points are somewhat linear - that’s great! But let’s fit a linear regression line to the plot to figure out the slope and intercept, which are needed later in the discharge calculations.</p>
+<p>Create a new dataframe called model (this is because we are using the linear regression model). Then use <code>lm()</code> which applies the linear regression model to the data. <code>lm()</code> is set up as response ~ predictor, so we will set it up as conductivity_values ~ milligram_values since the conductivity values are dependent on the milligram values. To visually see the line we use <code>abline()</code> which adds a straight line through the current plot and color the line red.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Linear regression for data</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(milligram_values, conductivity_values)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(conductivity_values <span class="sc">~</span> milligram_values)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(model, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAA4VBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrY6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kJA6kLY6kNtmAABmADpmOgBmOjpmOmZmZjpmZmZmZpBmkLZmkNtmtrZmtttmtv+QOgCQZgCQZjqQZmaQkGaQkJCQkLaQtraQttuQ29uQ2/+2ZgC2Zjq2kDq2kGa2kLa2tma2tpC2tra2ttu227a229u22/+2///bkDrbkGbbtmbbtpDbtrbbttvb25Db27bb29vb2//b/7bb/9vb////AAD/tmb/25D/27b/29v//7b//9v///8AfrM7AAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3dfWPT1oLgYblNG+DSHViYm3KHMnT3wjYdZkmX3hSYId1lwovz/T/QWpJf5JfY1rF8pCM9zx9tSIItOc4PHb0cZTcABMnaXgCAVAkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCNTtgGYAjWk+UY0/YoPafrWBPvivXPFR441q+gGbdIR/MICBKfJZfCSgADUs8imgADVU8ymgAPtbyqeAAuxrJZ8CCrCf/1rrp4AC7GFDPgUUYLeN+RRQgF1uyaeAAuxwWz4FFGCr2/MpoABb3Dp6LwgowC2251NAAW6xK58CCrBkNmXd1p2f8+9t/NmbfsAmCSiwVXXKzz2+ufGnb/oBmySgwDbTOZJ3j96n39348zf9gE0SUGCLsp/TCef3+fbGF6DpB2ySgAJb5ImYbX3ukQsBBZiZ3u5o+vEe3974AjT9gE0SUGCL6rEjAV0loMDt6t6vQ0ABCiuH3gV0lYACm60dehfQVQIKbDLd+swWjXAa0xoBBTaoHHqfRiIT0DUCCqyp7vvM5vb4iwIKDNvasaO9+ymgwKDtedX7ZgIKDNdB+RRQYLgOzKeAAoN1aD4FFBiow/MpoMAgHTx6LwgoMDjN5FNAgcFpKp8CCgxMc/kUUGBYGsyngAJD0mg+BRQYjiZH7wUBBYah8XwKKDAMR8ingAKDcIx8CigwAMfJZ5IBHV+9v7i4+O3qY8DfFVAYnqOM3gupBfTD88WE+9n9N3X/uoDC0Bwvn6kF9POjbNnJL/UeQEBhWI6Zz8QCen2aR/PuWelO/ofRT7UeQUBhSI6bz7QC+vXhJJgvK594NwnqN/+o8xACCgNy5HymFdDLtVzmSX1Q5yEEFAbj6PlMKqDjZ1m2OmC/zrLv6hyNF1AYiGOP3gsJBXSyubk2Xt/0uW0EFAYhSj4FFOifSPlMKqCTIfxo9awlQ3hgRbR8JhXQm/O1Wua7Rb+v8xACCn0XL59pBfTT6aSgv1c+8XnSz7WN0q0EFPotZj7TCmh+HtOkmGcvLnKvyzPpa53FJKDQaxFH74WkAnrz9nTlUs7R03oPIKDQX7HzmVpAb8avqgkdPak7I5OAQl/Fz2dyAZ0Yf7h4dXZ29uTiTcB8dgIKPdVCPlMM6EEEFHqplXwKKJC+NkbvhQQDakZ6oKK1fKYXUDPSA1Ut5jO1gJqRHqhqNZ+JBdSM9EBVu/lMK6BmpAcq2s5nWgE1Iz0w1/LovZBQQM1ID8x0IZ9JBbT+hMrZBsdaOiCebuRTQIH0dCSfSQXUjPTATYfymVRAzUgPdGb0XkgpoGakh6HrVD7TCqgZ6WHYOpbPxAJqRnoYsM7lM7WAmpEeBqt7+UwuoDdmpIdB6mI+UwzoQQQUUtTB0XtBQIGO62o+Uw7o+MNvf9b+SwIKqeluPtML6PuLi+JM0HJq5dHfav51AYW0dDmfqQW0PI3pu4/TqZWzmhdyCigkptP5TCygl9Nqfl9MrVzOSV/rSk4BhZR0PJ9pBTS/lPPkxevJ4P2v0yuQ8qLWuqeHgEIyuj16L6QU0OlkIvkMIrMNz3OTiUA/JZDPpAI6n5H+ejGFyGSj1HR20D9J5DOpgM4nT67Morx9QuV1AgopSCOfAgp0Tir5TCqg8xnpJ+N2Q3joq0RG74WEAjo/YnS+mAb00kEk6JWU8plWQK8n4fzh6urXLLu72BZ1GhP0R1r5TCugxaZncfnRf07Cef/i4nntS5EEFLortXwmFtDxr+U8yr/Mr0mqdwhJQKHDkstnYgG9ufnw8917xTT0f5QXw9+vOamygEJHJZjP5AK6MH7/89mL2vPZCSh0Unqj90KyAQ0joNBBieZTQIG2JZtPAQValm4+BRRoVcr5FFCgRQmP3gsCCrQk9XwKKNCS9PMpoEAr+pBPAQXa0It8CigQX0/yKaBAbP0YvRcEFIipR/kUUCCmXuVTQIF4epZPAQWi6Vs+BRSIpH/5FFAgit6N3gsCChxdP/MpoMDR9TWfAgocW2/zKaDAcfU4nwIKHFN/R+8FAQWOpef5FFDgWHqfTwEFjmMA+RRQ4CiGkE8BBY5gGPkUUKBxgxi9FwQUaNRw8imgQKOGlE8BBRo0rHwKKNCcgeVTQIGmDC6fAgo0Y2ij94KAAocbZD4FFDjcQPMpoMDBhppPAQUONNx8CihwkMGO3gsCCgQbdj4FFAg29HwKKBBIPgUUCCOfNwIKhJDPgoACdRm9TwkoUI98zgkoUId8VggoUIN8VgkosDf5XCagwJ6M3lcJKLAX+VwnoMAe5HMTAQWWZFPVz8nnZgIKVGXZekHl8xYCClTMw7koqHzeSkCBhcqG5/Qjo/ctBBRYqP6K5B/L51YCCiwsB1Q+dxBQYGH10JF8biWgwELlV0Q+dxNQYGHp0Ltfl10EFFioHnr367KTgAIL2eLQu9+W3QQUqJgfes/8tuwmoEBVOXhfvRiejQQUWFjk0+/KHgQUmHHmZ00CCpTks7a4AX17mmX3f2/6GWsQULiFfAaIFNB3j775x83NZbFnZfRL00+5PwGFjeQzSJyATso5Cein03LfdN7SlggobCKfYaIENC/npJpFRsfPsuxB08+5NwGFdfIZKkpAJ+X87uNNns7vb26ui/+2REBhldF7uBgBnZQz3++Zb4f+dHPz9WGLY3gBhWXyeYgYAZ0m87I8fiSg0BnyeZiIAT0vDx8JKHSEfB4qXkCnu0Dzkfx3H5t+0n0JKMzJ58Ei7QPNfprtAs03RB1EgtbJZwNiHYU/efOvxQh+/G9Z2dFw46v3FxcXv12FbMYKKBSM3hsRJaCTMXzhQfnRIRugH55nC/ff1F44AQX5bEycK5HKa5C++1gE9IfwPaCfH2XLTmpeFiqgIJ/NiXQt/Pjd2Y/55uLX/15/q3Hhuujw3bPSneLC+nq7AwQU5LM5KU1nl2++jl5WPvHutO6F9QLK0Mlnk1IK6OVaLvOk1rqwXkAZNqP3ZsUL6JeLi98+3oz/DH7g8myoZddZvZNKBZQhk8+mxQro2zvlPHZfH56ETqi86RKmupc1CSjDJZ/NixTQX2cTgU6KFzqhsoBCOPk8hmgTKmcn//N0ekFn4JWc00mdlhjCw17k8yiiTaj8dLK1mG8sbtqTuafztVrOrq/ff+EElCGSzyOJEtDy8vcyoAdMqJx3+LvqHtTPz+reYUlAGSCj96OJOKHyNKAHzMZU3JRudPbiIve6PJO+3u1BBJTBkc8jijgf6DSgh8wH+vZ05VLO0dOaCyegDIt8HlVaAb0Zv6omdPSk7qasgDIs8nlcSQ3hy0f7cPHq7OzsycWbgEcRUIZEPo8t1kGkB/OAXppQGWIwej++KAG9np5Dnwf0+uAJlQ8hoAyFfMYQJaD56Zqjl3lAiwnpD7wlkhnpYRf5jCPOlUizKenLQz+Bl3IWzEgPO8lnLLEmVH62mEQ+dDKRGzPSwz7kM5po09l9fp6f9z46ZEJ6M9LDbvIZUUoTKpuRHnYxeo8qpYCakR62k8/IEgqoGelhK/mMLsqVSD+fLfsx6Dym+hMqZxuEPDMkQD5bEOla+GVh18ILKNxOPtuQUEDNSA+3kc92RNkH+uVq5vXzbPT0KvDOnGakh42M3tsS/SDSp9Os5hye1b9qRnpYJZ/tiX8U/jL8Wk4z0sMq+WxT/IBOtiODp7MzIz0sk89WxQ+oGemhKfLZsla2QMMDemNGepgxem9dG/tAD50Q9AACSm/IZwdEDuj4Kp9R2S094EDy2QltnEh/0IzKM1/eh4zhBZRekM+OaCGgdY+cV314XOw/nR1LOnm582+sLJyA0gPy2RVRAvr47sK9J4HXIU2Mn5eXgVbmt/+h3laogJI++eyOhKazK7s5CWjx/9HZ2dlp7f2pAkrqjN67JKWA5ndE/qeP5f+LC5Dye3y6lJMhkc9uSSmg59Nuni+2O89NJsKAyGfXJBTQrw/Lzc3Z/3OfTk1nx1DIZ/ccN6BrM4E2MaFy9VrQuteFCijJks8OSjCg42cCyuDIZycdOaDVE5gqpzKFzkhf3lTufDGENyM9g2D03lEJ7QOd39Z4MSFe3lS3Nabv5LOzUgpovkPgJJ+R/nJ2GtOvTmOi9+Szw1IK6M11fub8vRdX+YwkJ09ePz81Iz29J59d1kpAr0Kns/u0OiN9zX4KKImRz26LFNDx67OZu3cam5HeZCL0m9F718UJ6PXyluNBM9J/eX1WHNu/9+ML09nRZ/LZfVECujryvm9GethBPlMQJaD57Yjvv36Yjf7l1aMsG/3U9FPuT0BJg3ymIUZAp2drnhfnwbd6SyQBJQ3ymYhIM9LnZ2uWZ2/OrydqhYCSAPlMRqSA5oeNrsup567dVA62MHpPSMSATqeem/zJbY3hFvKZlEj7QPOATstZdwKlRgkonSafiYlyFL6cPmnRUQGFTeQzNbFOY8p3e5aH4evOQNcoAaW75DM9UQKaT6M0ieYknd+8+c+HDiLBOqP3FEW6lHNxO+Ks7gx0jRJQukk+0xRpMpF3j4rdn4+Kfj5t+in3J6B0kXymKvJ0du/Ozp782fQz1iCgdI98piupCZUPJ6B0jnwmLMp5oP/e3sXvKwSUjpHPpEW6EunkZTcaKqB0itF74iIFNL+X0ZumnymAgNIh8pm8KPtA3z0qT1+6/3vTT1aXgNIZ8tkDse6J9OpO2dAn7Q7lBZSOkM9eiHcU/sv0fnCt7g4VULpBPvsh6mlMn5+fuicSyGdvxD4P9MPzQ+/KeRABpX1G7/0ROaDjd48FlEGTzz6JGtCinq0eSRJQ2iWf/RIvoMXgPd8B2ua5TAJKq+SzZyIFdHb46N7Lpp+uHgGlRfLZO1GuhZ+ewPRtyyeB3ggoLTJ676Fol3J24DKkGwGlNfLZS5EC2okL4W8ElJbIZ09FGcL/tmHo/uWqjYmVBZQWyGdvtTWhcks3NxZQ4pPP/hJQOCr57DMBhSMyeu83AYWjkc++E1A4EvnsPwGF45DPARBQOAb5HAQBheYZvQ+EgELT5HMwBBSaJZ8DIqDQJPkcFAGFBsnnsAgoNEY+h0ZAoSFG78MjoNAI+RwiAYUGyOcwCSgcTD6HSkDhUPI5WHFu6bH+XeP3F5tu9HFsAkrj5HPA3FQODmH0PmjRbmuc3e9CQwWURsnnwEXZB/ruUV7QLtwaXkBpkHwOXqSDSONXd8qGPmnjZsYLAkpz5JN4R+FnDf32SQsHj2YElKbIJ5FPY/ry6rRo6MnLthoqoDTD6J1c7PNAv5TboaOWNkMFlCbIJ6XIAX33PJsa/dL0E+9DQDmcfDITM6DvHk8H8B+et1VQAeVQ8slCtIB+eJ5Vxu7jZ1n2fdPPvAcB5UDySUWcgE7rmS1OBP106lp40iOfLIl3JdJk6L78OQElMUbvrIgV0NXD7pPPfWcyETppdqBz5dPyyZo4Ad1wDedV08+7FwFlpyzbVFD5ZIO25gNtiYCyyzyc1YLKJxtFmQ90ee7P96/au5hTQNmhks3FR/LJZpH2gVYOGLV0+KgkoOxQfYtMP5ZPbiOgULUWUKN3bnfkgP5xNvHX02z0l7OZR5mA0l0rAZVPtjlyQD+dZhu0cQ1SSUDZYSmg8sl2xx7Cn2/o50lrG6ACyi7Vt4h8ssOxAzq+uLh4PRnCv7iYa+cM0JKAsoND79QQ/yBSqwSUHbLKoXf9ZIcWzgNtk4CyS1HQIp/eLeziSiRYlmXTfHqzsIuAwrJZPr1X2Om4AS33fk6ns1twHijdZd8n+xNQqJBP6jhyQB/fvfeP/L/L7gkoneTQO/XYBwpT8kldCQZ0fPX+4uLit6uQM6MElNvIJ/VFOQ/035s7C3R2e7ryHnVv6v51AeUW8kmASFcinbxspKGfH61eVl/z5vICykbySZB4d+W8V3tzcc11MbfT3em8eHeK+8z/VG/hBJR1Ru8EirIP9F254TjacG+5Ooq7e1bvjfzutO4pUQLKGvkkWKSDSONXd8qGHnI7pMu1XOZJfVBr4QSUZfLJAeIdhf/yqpxcOXh36PhZlq0O2K+zereXF1CWyCcHiXoa0+fnZUPvByV006x4dWfKE1Cq5JPDxD4PtDgNKexSTgGlWfLJoSIHdPzucXBAJ0P40epZS4bwhDJ653BRA1rUM/xI0vlaLfPdorXuUCeglOSTJsQL6OwaovBzmfJbfH5X/dufJ/1c2yjdvnACyo180pRIAZ0dPrr3ctNX93VZbL+elTeoe12eSV/rLCYB5UY+aU6Ua+GnJzB9e8hJoIW3q7eZHz2tuXACinzSmGiXch56GVJp1uIscGeqgA6efNKgSAFt4EL4mfGHi1dnZ2dPLt4EbM8K6MAZvdOoKEP4rtzUWEAHTj5pWIITKh9CQAdMPmlcggE1Iz0h5JPmpXZXTjPSE0Q+OYa0AmpGeoIYvXMcSd3W2Iz0hJBPjiWlfaBmpCeAfHI8KQXUjPTUJp8cU5TzQN9fVM8Eff8q7JJOM9JTm3xyVJGuRKpsOdadA3nrX9z+YNkGIc9MouSTIxNQ+sronaM7ckD/yA+X//U0G/3lbOaRGemJQD6J4MgB/bQ6/1yh1iTyC2akZ1/ySRTHHsKfb+jnSeBpoGakZz/ySSTHDug4nzt+MoQvZ5EvXAU/tBnp2Yd8Ekv8g0iHMCM9O8kn8bRwHughzEjPdkbvxJTSlUglM9JzK/kkrmgBHf9H3ruv//z3VmenF9A+k09ii3Vb48flbtCvD7PR35p+xhoEtMfkk+jiBPR6Nm1SMTVovQPntwnasyqgvSWftCBKQPMTOEc/FLX78mvdUzdvE3RsX0B7yuidVkQJ6NIlROfBVyItE1Bm5JOWRDmNaeki9snmaK3L1xe+XFV9mAT0zeT/f9ZaOAHtH/mkNWnNxrRJrQcT0N6RT1okoCRNPmlTpCF8ZSr5ujPQLeQXco7m0+LNJsn70XR2wyWftCvKQaTLypH3/Ih86HlM+exLJ7PpmBxEGjyjd9oWJaDF4Pv+y6urq/fPs+AN0Nwfp/MT8QV04OST9sU5kX5pXuWDTgP9/Gg2J6iADpp80gWxLuV8Pu/n/cMuhh//23QSOwEdMvmkE+JNJvL+5/yIz8vD5xL59KiosIAOl3zSEelNZzdpcX456EsBHSqjdzojxYCWJzT95VRAh0g+6ZA0A1qc0BRye2QBTZx80ilRTqT/+WxZrXPfb/HHqYAOjnzSMZEu5Tzg6svbfP45IMQCmjL5pGvSDWgQAU2XfNI9UfaBLuahe/08Gz2tNwNdowQ0VUbvdFH0g0ifTrOa93JvkoCmST7ppvhH4S8buqVHEAFNkXzSVfEDOtkEbeSWHkEEND3ySXfFD2jwhMpNENDkyCcd1soWqICyJ/mk09rYB3rIhKAHEtCkGL3TcZEDOr76t6yh2xoHEdCEyCed18aJ9I7Cs5t8koAWAjpyHig7yScpiBLQx3cX7j1p7zokAU2FfJKGRKezCyWgKTB6JxUCSsfIJ+kQUDpFPkmJgNIh8klajhvQ8fuLTX5zIj2byCeJOW5A16ZSNqEyt5JPkiOgdIPROwmKNIR/nmWj+y8uLv7HaTZ6YgjPKvkkSXEOIl1m2T99nH/4oOmn3J+AdpJ8kqgoAb2uzh9ynmU/Nf2cexPQLpJPUhXlvvDPqvOHfDo1nR0V8km6Ik0mUjlsZEZ6KozeSZmA0iL5JG2RhvCV3Z7XZqSnJJ+kLspBpMvKqZ+fH7Z5GF5Au0M+SV+UgObn05+8zD8avz1t8zx6Ae0O+aQH4pwHel1egXS37Tt6CGhXyCe9EGk2pk+P5tdxnvze9DPWIKCdYPROT0Sbzu7D8zuTen57/03Tz1eLgHaAfNIb5gMlLvmkRwSUmOSTXhFQIpJP+iVWQN//fLbwoxPpB0k+6Zs4Af10akLlwTN6p3+iBHSlnwI6QPJJH8W6lDO79+Jq7s+mn3NvAtoO+aSfYk0m8v2G72yBgLZCPumpSNPZtXn5ZpWAtkA+6a3484G2SkCjM3qnxyIN4QV0oOSTXot1EKm9+8gtEdCo5JOeizUfaEc2QQU0Ivmk96KdSD96ctX0MwUQ0Hjkk/6LdBDJifRDI58MgYByBEbvDEOUgD6+u+yegPaafDIUprOjYfLJcAgojZJPhkRAaZJ8MijxAvrlYuK39iZiKgjoUcknAxMroG/vTI/Aj542/YR1COgRGb0zOJEC+mvlJKYfWruhh4AekXwyQHECms+oPLp/cfH6eT43fYtzgwrokcgngxTtlh7T7c7xZFu0xclBBfQ45JNhihLQ8+pW53mbm6ACegzyyVBFmg+0stE52Rz9zm2Ne8ToneGKPyN9q3PbCWjT5JMhE1AOIJ8MmyE8weSToXMQiVDyyeBFCeh1lmWzC5DeZm3eIElAGyOfEOlE+slWZ3by4urq6vUjJ9L3gtE73MQK6PhZ5VLO9vaACmhD5BMKka6FH88vhh+1eSm8gDZBPmEq3nR2738+Ozv78bemn64eAT2cfMKMCZWpRT5hQUCpwegdqqIFdPwf+b7Pr//89zZ3gQroQeQTlkUK6OfH5fWbXx9mo781/Yw1CGg4+YRVcQJ6fZrNA5plD5p+yv0JaCj5hHXRJlSenr70xYTK3Tc75azyKfmEDWJdC784e9618F23uOZh9hn5hI3MxsSKeThnHxi9wy3MB8qyyoZn8ZF8wq0ElGXVlyjL5BO2iDSEr8xgd33odCLjq/cXFxe/XYU8iIDuVH2J5BO2inIQ6bJy5D0/In/AeUwfnlfmdbr/pvbCCegulZdIPmG7KAEtzv68//Lq6ur984Pms/v8KFt2UvOMKAHdaf4S5fn0csE2cU6kzzc758JPA70uHubuWelO8WD1ZrcX0J2qh969XLBVrEs5FyPv+8Hbn/mG7Ohl5RPvZhc47b9wirBL9dC7lwu2ijeZSDkf6MsDjh9druUyT2qtHaqKsFO2OPTu1YLtEprObvlgfqnuIX1J2C2bHTvKvFqwXUIB3XQCad2TSiVhp3Lf59rF8MA6AaXqv/QT9pdQQJcvqS8ZwjfKifNQS0IBXZ7UqZDvFq01tZOAbiGfUFNKAc3PJv3u98onPj+re1apgN5KPqG2lAKan8c0KebZi4vc6/JM+nqXhQrobeQT6ksqoDdvq1c0FTV9Wu8BBHQz+YQQaQX0Zvxq6aLQJ3VPyxfQTYzeIUxiAZ0Yf7h4dXZ29uTiTcBFTQK6Tj4hVHoBPYiArpJPCCeggyafcIgEA2pG+sbIJxwktYCakb458gkHSiugZqRvjtE7HCypgJqRvjHyCQ1IKaBmpG+KfEIjUgqoGekbIp/QjIQCakb6ZsgnNCWhgNafUDnb4FhLlwqjd2iOgA6KfEKTEgqoGekPJZ/QrIQCakb6w8gnNC2lgJqR/hDyCY1LKaBmpA8nn3AESQXUjPSBjN7hKNIKqBnpQ8gnHEliAb0xI31d8glHk15ADzK8gMonHI+A9pp8wjEJaI8ZvcNxJRbQ8avHd//y98XOz+2Xcq4bUkDlE44trYD+cbpy9F1AbyOfcHxJBfRyfgLT7JJOAd1MPiGGlAKaX8p58vLqKj8X9KTMpoBuJJ8QRUoBvZxteeb3lisLKqAbyCdEklBAKzPS5x8WLRXQNUbvEE1CAa3GcjaPnYCukE+IKNGAzm4nJ6BL5BOiSjWg+RGl0S8CWiWfEFlCAV25K+d1ln3zu4AuyCfEllBA86Pw3y//8Zv/I6BT8gnxpRTQ/DzQ+38u/vxrcU69gN4YvUM7UgpocSVStZe/CmhBPqEdSQU0v6XHUi/zW3wMPqDyCW1JK6A343c/Ls1DP/71dOgBlU9oTWIBPVTvAiqf0CIBTZnRO7RKQNMln9AyAU2VfELrBDRN8gkdIKBJkk/oAgFNkHxCNwhocozeoSsENDHyCd0hoEmRT+gSAU2IfEK3CGg65BM6RkBTIZ/QOQKaBqN36CABTYF8QicJaPfJJ3SUgHaefEJXCWjHySd0l4B2mtE7dJmAdph8QrcJaGfJJ3SdgHaUfEL3CWg3ySckQEC7SD4hCQLaPUbvkAgB7Rr5hGQIaLfIJyREQDtFPiElAtoh8glpEdDOMHqH1AhoR8gnpEdAO0E+IUUC2gHyCWkS0PbJJyRKQNsmn5AsAW2X0TskTEDbJJ+QNAFtj3xC4gS0LfIJyRPQlsgnpE9AWyGf0AcC2gKjd+gHAY1OPqEvBDQy+YT+ENC45BN6REBjkk/oFQGNx+gdekZAY5FP6B0BjUM+oYcENFgK/RIAAA4USURBVAb5hF4S0AjkE/pJQI9OPqGvBPTIjN6hvwT0qOQT+kxAj0g+od8E9HjkE3pOQI9FPqH3BPQ4jN5hAAT0GOQTBkFAmyefMBAC2jT5hMEQ0IbJJwyHgDZKPmFIBLRBRu8wLALaGPmEoRHQhsgnDI+ANkI+YYgEtAnyCYMkoIeTTxgoAT2U0TsMloAeRj5hwAT0EPIJgyagB5BPGDYBDSafMHQCGsjoHRDQIPIJCGgQ+QRyAlqbfAIlAa1LPoEpAa1HPoE5Aa3D6B2oEND9ySewRED3JZ/ACgHdj3wCawR0L/IJrBPQPcgnsImA7mT0DmwmoDvIJ3AbAd1KPoHbCejG7yrZ+QlsI6Cbvqkkn8BWArrhe4pvMnoHdhDQ9W/Jv6fI51HuIg/0hoBu+pbZ1qeCAlsI6Pq3LAbvAgpsIaBr31LZ9ymgwBYJBnR89f7i4uK3q48Bf3f36i4dOhJQYIvUAvrhebZw/03dv75rdVcOvQsosEVaAf38KFt28ku9B9i+umuH3gUU2CKpgF6f5tG8e1a6k/9h9FOtR9i2utOtz2zxPfoJbJNSQL8+nATzZeUT7yZB/eYfdR5iy+pWDr1nN8sfAGySUkAv13KZJ/VBnYe4dXWr+z4XewjqLyMwIAkFdPwsy1YH7NdZ9l2do/G3rO7asSP9BHZLKKCTzc218fqmz1UWZYMN3+aqdyCIgMonECihgE6G8KPVs5YOHsLLJxAsoYDenK/VMt8t+n2dh1hdXfkEwqUU0E+nk4L+XvnE50k/1zZKt1peXfkEDpFSQPPzmCbFPHtxkXtdnklf6yympdU1egcOk1RAb96erhwSGj2t9wCL1ZVP4FBpBfRm/Kqa0NGTujMyzVZXPoHDJRbQifGHi1dnZ2dPLt4EzGfndkdAc9IL6EHm9ztqe0GAHhheQOUTaMjQAmr0DjRmgAFtexmAvhhaQDu9dEBaBBQg0OACCtCcxhvV9AM2qe0XG+iXxhvV9AO2Yuhjfevf9hK0y/q399StPXOTvIHaXoJ2Wf+2l6BdAnogb6C2l6Bd1r/tJWiXgB7IG6jtJWiX9W97CdoloAfyBmp7Cdpl/dtegnYJ6IG8gdpegnZZ/7aXoF0CeiBvoLaXoF3Wv+0laJeAHsgbqO0laJf1b3sJ2iWgB/IGansJ2mX9216CdgnogbyB2l6Cdln/tpegXQJ6IG+gtpegXda/7SVol4AeyBuo7SVol/VvewnaJaAH8gZqewnaZf3bXoJ2CeiBvIHaXoJ2Wf+2l6BdAnogb6C2l6Bd1r/tJWiXgB7IG6jtJWiX9W97CdoloAfyBmp7Cdpl/dtegnYJ6IG8gdpegnZZ/7aXoF0CeiBvoLaXoF3Wv+0laJeAAqRHQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAoB4E9PPz0ywb3f+97eWIYfwsm/tp+rn19e/pK/L14Tf/WPxpn9Xu1wtRXf+BvRHGr+5OVvTbuj/tCOuffkDfnpZvo9Hf2l6SCL4+XPu9WV//nr4ik2ZUArrPavfrhVha/2G9EWYrkmU/rH6q7Z9/8gG9Xv+XuMcqaztd3fX17+krMj7PKgHZZ7X79ULcuv79fyNUV/b7tU+1+/NPPaD5v8Qnk030D4+qb6/eulx9L6yvf09fkWLMOl+ffVa7Xy/E8voP6o1QrMibm3JNRr/MP9WJn3/qAZ28kb77mH+Qv8EetL00R3e++lZYX/9+viLvitHYfOX3We1evRAr6z+oN8L1fLszX5Piw+78/BMP6OS1Kf9Jurn5dDp9vXpssrrL67i+/r18RT5PNiKy+4/m0dhntfv0Qqyu/7DeCOeLre0aP+1I6594QCeb6bOXpvKC9dZkdb9f/cTK+vfyFZlsTIyeVg6i7LPafXohVtd/sG+E6Up16OefeEAXW/dL/1D11WR1f/r8eLI1cu/l/BMr69/LV+Ry9MPH6lHofVa7Ty/E6voP9o0wrWKHfv7pB3S+d2Ntv3r/XGajv06PK94v/nVdX/9eviJf8pVdDujO1e7TC7G6/oN9I0yr2KGff+IBrb4y12nvKt/HeeV8jmJ8sr7+/X1FKgHZZ7V790JUAzrQN8JkA7QYi3fo5y+gCckPJ46efMyvsMjKlR3G701JQKsH0Qb5RjhfHITvys9fQBMy+wf4pljx/LdpGL83JQGtHkQb4BthcSlBh37+ApqmfBvkp2H83swI6KbzwYfzRig2u8t/Njr08xfQRF0OpRtzArrxgpqhvBE+zy9D6tTPP/GA9vJQ417KNR/IwdfCgI/CF24J6EDeCJ9Os+ykchZXV37+6Qe0fye77WX+ezOE0/8KAz4PtLAroL1e/0kCsx/mVxN16OefeEB7ebnFXsp/VAdyAUphwFciFW4fwvf/jXCZLQ3CO/TzTzyg/bngdx+Xi3fR9Dhsny+BXrV8Gk9XroWOZ3kf8KDeCJfZcgE79PNPPKD9mXJmH5M3wvRXaHxeY1qanli+Eqcrs/HEU1n/gb0RJqPxb5Znle/Ozz/1gM7mCkx+0sN9FCdyPP24NjHim7VpEPv4iqxMprFztfv2QqyeSD+YN0LlrNfKpzry8089oP2Zdnsfn04Xazv9N7XHE5GvWNoH2JkZyeOprv+g3giXWVXZ0s78/JMP6M0ffbnxyz4+PcpW13Z9/Xv6iiwfRNlntfv1Qiyt/4DeCNX7580D2pmff/oB7c+tB/cxfpdPYvbtkz8Xn+rxzRiXrByF7shdGeNZXv/hvBGq989bBLQrP/8eBBSgHQIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQSUaMbPsm/+ccv/Wl8qCCCgRCOg9I2AEo2A0jcCSmxdKedUV5aDFAkosQkovSGgxCag9IaA0qyvD7PvPo7f3smyk5eTP45fnWbZt0+LL+3YB/r5cZZl934vHmDyx/PJ/97dyT8z+cOXV3cnXxzde7nrOdZcZtlP0w8/nZaPvPxgi+UY/bL8fZNPvs2/897Lj9NHKP/87ZM/m3zFSJiA0qw8bv/vWVZ4cPP5UfnR9/mXtgf0svzO7L8tAvo2/3OetdnXsvJLW55jzaSGsy9MW7ryYFsCOvmgdPL7zdKfJ88KNwJK0/K4/es0M6P/9WxWnLxcWwN6nWXLYTvPvj2ddvGy8rUH259jzWILd/rR6oPdHtBFL8uHmDxttvW5GBwBpVlFZU7eTEbkD2fbbu9Oy83DbQHN/1r+vW9PFwGdfPD77CF/yEfNHx6VX9vyHOvmY/hyW3TtwW4NaLFIL/Nx+/SxL8snvfn8LJuN8Rk4AaVZeXbKulxnlY+WU7X+v8usMmyeBXRaqet5GydfnNX2ludYNx/DnxclXXuwWwO6eMTJ8+VfO5+l2HEnpgSUZuVx+2n20TRJk49uLef0f/M4zVN6vmFP4/SBtjzHuskTzHacLn/D2lKtBPR8/om8pQ/KJfv9oBeHvhFQmrXo1NpHWwJaqdtsD+T56o7GL+9/Ps1mAb3tOTa4LEN4vRTkxYPdFtDZ2QDTz3w/3U07+svfjd6ZEVCaFRzQWa0WpzHNNwBvxu8en1YO59QL6KR+D6qPt/JgWwJaVW6TTg9cOY+JkoDSrLCALk693BTQyuHwgICWY/h5olcf7LaAVr9vGtDihNPF8XsQUJp1hC3Qclvw23s/vvi/DwMCWo7hZyP4tQfbEtANR6XePVdQFgSUZjW4D3QWtMv5mexfgwI6ecSf5g+39mBbhvCbH/DL6+eZ85goCCjNCgvo5L/rR+Fn+ywXabsOGcLnD/D9bLt2/cFm5yQtBXvyvZVFmj/M7Bm2PBmDIqA0Kyygi/NA5+d4bghoft58QEAnD/7N/57WcP3BFgGdniD6eboEk0X65vfZA+RD9sWJVQJKSUBpVmBAZ1civatciTTbIjwvv1Qewsk/WTegxfGg6VfXHmwW0PwSzx8+ltcdza9EGj2dfPDl1/I789OY5hcxbb7siYERUJoVGNBN18JXxtoLIQHNR+Oz4q092GwBFqct/ct0uF/91mLT83zxZxug5ASUZoUGdMNsTPPTmH6dn39Z7pesG9DisWf7M1cfbL4A19NzlB7MTwm4XjlraTyft+Tkl81PxMAIKM0KDuhsPtDZtevVE+nf5V/69snH6ZXstQM6vex944MtFuDLr6f55J+Vc6rGr1bm//zwPG/qYoJQBk5A6ZjKBJ7QcQJKJyyufN80iQh0k4DSCZNsjvJbbORHvB2gIRUCSidUrzwP3wBdOsReMnU8RySgdMPbJubpEFDiElA64surO9mhd7wUUOISUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQIJKEAgAQUIJKAAgQQUIJCAAgQSUIBAAgoQSEABAgkoQCABBQgkoACBBBQgkIACBBJQgEACChBIQAECCShAIAEFCCSgAIEEFCCQgAIEElCAQAIKEEhAAQL9fyNeMgmsdM7pAAAAAElFTkSuQmCC" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, let’s extract the slope and intercept value from the model. How we do this is using the <code>coef()</code> function. Let’s see what happens when we run that.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     (Intercept) milligram_values 
+      17.7333142        0.4319493 </code></pre>
+</div>
+</div>
+<p>Okay we can see that it gave us the intercept and also the slope, but the slope is recorded under “milligram_values” which is not very intuitive. Instead, let’s extract both of those values one at a time and assign them to a dataframe.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#pull out slope and intercept</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>slope <span class="ot">&lt;-</span> <span class="fu">coef</span>(model)[<span class="dv">2</span>] <span class="co">#pulls out just slope</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>intercept <span class="ot">&lt;-</span> <span class="fu">coef</span>(model)[<span class="dv">1</span>] <span class="co">#pulls out just intercept</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can also see the full output of the model using <code>summary()</code>. Let’s give that a try.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = conductivity_values ~ milligram_values)
+
+Residuals:
+     1      2      3      4      5 
+-5.934  2.285  6.673  3.534 -6.558 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      17.733314   5.300378   3.346   0.0442 *  
+milligram_values  0.431949   0.004328  99.809 2.22e-06 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 6.843 on 3 degrees of freedom
+Multiple R-squared:  0.9997,    Adjusted R-squared:  0.9996 
+F-statistic:  9962 on 1 and 3 DF,  p-value: 2.217e-06</code></pre>
+</div>
+</div>
+<p>Now let’s print the results so we can see what the values are!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(slope)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>milligram_values 
+       0.4319493 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(intercept)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+   17.73331 </code></pre>
+</div>
+</div>
+<p>Well those labels don’t make a lot of sense. Let’s try again using <code>cat</code> which allows you concatenate and print. To use the function, we are first putting the text we want into the “quote” followed by the dataframe we are using, and then we use <code>&quot;\n&quot;</code> to create a new line so everything isn’t squished!</p>
+<p>If you want to know more, type <code>?cat</code> into the console!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">#display slope and intercept</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Slope:&quot;</span>, slope, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Slope: 0.4319493 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Intercept:&quot;</span>, intercept, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Intercept: 17.73331 </code></pre>
+</div>
+</div>
+<p>We have now successfully created a calibration curve and have extracted the slope and intercept values that we will apply in the next section: discharge calculations!</p>
+</section>
 </section>
 <section id="discharge-calculations" class="level1">
 <h1>Discharge Calculations</h1>
