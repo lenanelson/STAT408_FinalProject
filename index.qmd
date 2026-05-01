@@ -1,11 +1,11 @@
 ---
-title: "Streamflow calculations using the dilution tracer method"
+title: "Streamflow calculations using the dilution tracer method tutorial"
+author: "Lena Nelson"
 format: html
 editor_options: 
   chunk_output_type: console
 embed-resources: true
 ---
-
 # Overview
 Calculating streamflow can be difficult in small mountainous streams due to changing flows, rocky bed surfaces, and steep, fast flowing sections followed by pools. While there are a multitude of ways one can calculate streamflow, a standard procedure for calculating streamflow is the dilution tracer method.
 
@@ -50,11 +50,13 @@ First we need to install and load in the packages needed.
 #install.packages("tidyverse") 
 #install.packages("hms")
 #install.packages("pracma")
+#install.packages("knitr")
 
 # Load in the packages
 library(tidyverse)
 library(hms)
 library(pracma)
+library(knitr)
 ```
 
 Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water, it shows the salt intervals, and was the second test we conducted.
@@ -85,7 +87,7 @@ colnames(cal)[1] <- "time"
 colnames(cal)[2] <- "conductivity_muS_cm"
 colnames(cal)[3] <- "temperature_C"
 
-head(cal)
+kable(head(cal)) #better way to see the columns
 ```
 
 ### Data exploration
@@ -95,7 +97,7 @@ Why don't we go ahead and see what type of data we are working with using the `s
 str(cal)
 ```
 
-From this we can see that our time column is actually a character when we want it to be a time! Let's fix that using the `as.POSIXct()`. Then let's extract just the time stamp using `as_hms()` since we just need to work with hours, minutes, and seconds.
+From this we can see that our time column is actually a character when we want it to be a time. Let's fix that using the `as.POSIXct()`. Then let's extract  the time stamp using `as_hms()` since we just need to work with hours, minutes, and seconds.
 ```{r}
 # convert time column to datetime
 cal$time <- as.POSIXct(cal$time, format = "%m/%d/%y %I:%M:%S %p")
@@ -107,7 +109,9 @@ Why don't we run some basic summary statistics to get a general idea about our d
 summary(cal)
 ```
 
-Let's check that everything looks good before we move on. 
+The time ranges from 11:32:34 to 12:07:50. Conductivity values range from 3.7 to 884.6. Temperature values from from 20.71 to 27.61 C. 
+
+Let's check that our timestamps are correct before we move on. 
 ```{r}
 str(cal)
 ```
@@ -181,11 +185,7 @@ avg_2000mg <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
 
 Let's print these values using the `print()` function so we can visually see all the values.
 ```{r}
-print(avg_0g)
-print(avg_500mg)
-print(avg_1000mg)
-print(avg_1500mg)
-print(avg_2000mg)
+print(c(avg_0g, avg_500mg, avg_1000mg, avg_1500mg, avg_2000mg))
 ```
 
 Great now we have the average conductivity for each interval.
@@ -235,14 +235,14 @@ We can also see the full output of the model using `summary()`. Let's give that 
 summary(model)
 ```
 
-Now let's print the results so we can see what the values are! 
+Now let's print the results so we can see what the values are. 
 ```{r}
 print(slope)
 print(intercept)
 ```
 Well those labels don't make a lot of sense. Let's try again using `cat` which allows you concatenate and print. To use the function, we are first putting the text we want into the "quote" followed by the dataframe we are using, and then we use `"\n"` to create a new line so everything isn't squished!
 
-If you want to know more, type `?cat` into the console! 
+If you want to know more, type `?cat` into the console. 
 
 ```{r}
 #display slope and intercept
@@ -250,17 +250,204 @@ cat("Slope:", slope, "\n")
 cat("Intercept:", intercept, "\n")
 ```
 
-We have now successfully created a calibration curve and have extracted the slope and intercept values that we will apply in the next section: discharge calculations!
+We have now successfully created a calibration curve and have extracted the slope and intercept values that we will apply in the next section: discharge calculations.
 
 # Discharge Calculations
 
+## Read in the data
+
+Let's start by reading in the raw data in the same way we did for the calibration curve data (skip the first row, select only columns 2:4, and rename the columns to be more user friendly). The csv file is called "BC_EC_20260130.csv". The data was collected on January 30th, 2026.  
+
+```{r}
+ec_data = read_csv("BC_EC_20260130.csv", 
+                   skip = 1,
+                   col_select = 2:4)
+
+colnames(ec_data)[1] <- "time"
+colnames(ec_data)[2] <- "conductivity_muS_cm"
+colnames(ec_data)[3] <- "temperature_C"
+```
+
+Again, let's convert the time column to a datetime. We also just need the time again, so let's create a new column called "time_only". 
+
+```{r}
+ec_data$time <- as.POSIXct(ec_data$time, format = "%m/%d/%y %I:%M:%S %p")
+ec_data$time_only <- as_hms(ec_data$time)
+```
+
+Check to make sure it looks correct. 
+
+```{r}
+kable(head(ec_data))
+```
+
+Awesome!
+
+Now we need to define a couple variables that we can get from the metadata sheet. The metadata file is called "20260130_metadata.xlsx". We will need:
+
+- mass (in grams)
+- probe_in_time (the time the sensor was placed into the stream in hh:mm:ss)
+- injection time (the time the salt was injected into the stream in hh:mm:ss)
+- end_time (the time the sensor was taken out of the water in hh:mm:ss)
+
+```{r}
+# Information from the metadata sheet
+mass <- 600
+
+inj_time <- "11:57:00"
+
+end_time <- "12:25:00"
+
+probe_in_time <- "11:45:00"
+```
+
+Alright, let's do an initial plot to visualize the data using ggplot. 
+
+```{r}
+ec_data |>
+  ggplot(aes(x = time, y = conductivity_muS_cm)) +
+  geom_point()
+```
+
+Cool! We can see the electrical conductivity before we put the sensor in, those are the dots with almost zero conductivity. Then we can once we put the sensor. But the most important thing, is that we can see the breakthrough curve!After the breakthrough curve, we see that the electrical conductivity goes back to the baseline of the water. That is a good sign that everything worked correctly, phew! 
+
+## Injection window
+
+Now we can filter the data to just the injection window, which is the time between when we put the salt in the stream and when we took the sensor out of the stream. We make this really easy by using the times we already defined earlier. 
+
+```{r}
+injection_window <- ec_data |>
+  filter(
+    time_only > as_hms(inj_time) &
+      time_only < as_hms(end_time)
+  )
+```
+
+To make sure we did that correctly, let's do another very basic visualization plot. 
+
+```{r}
+injection_window |>
+  ggplot(aes(x = time, y = conductivity_muS_cm)) +
+  geom_point()
+```
+
+Great - we can see that just the breakthrough curve plus the tail is included. It is important to include the entire tail because some residual salt is still passing through. If you take the sensor out too early you can affect your discharge values. 
+
+## Background conductivity
+
+If you look at the graph you can see that the values start between 225 and 250 uS/cm. While those are the actual values of the stream, we want to correct for the background conductivity, or the natural electrical conductivity of the stream on its own. 
+
+To do this, we will filter from when we put the sensor in the water to when we put the salt in. 
+
+```{r}
+background_window <- ec_data |>
+  filter(
+    time_only > as_hms(probe_in_time) &
+      time_only < as_hms(inj_time)
+  )
+```
+
+Now that we have a new dataframe with the background conductivity, we need to find the average over that time period.
+
+```{r}
+avg_background <- mean(background_window$conductivity_muS_cm, na.rm = TRUE)
+
+print(avg_background)
+```
+
+Cool - the background conductivity of the stream is 211.99. 
+
+We now need to calculate the electrical conductivity corrected to the background conductivity. To do so, we will subtract the avg_background from  conductivity_muS_cm and create a new column called ec_excess. We don't want those values to be negative, so let's do a simple ifelse statement where if the value is less than 0, replace it with 0. If it isn't keep the original value. 
+
+```{r}
+injection_window <- injection_window |>
+  mutate(ec_excess = conductivity_muS_cm - avg_background) |> # create new column called ec_excess
+  mutate(ec_excess = ifelse(ec_excess < 0, 0, ec_excess)) # this avoids any negative values
+```
+
+To integrate later, we will need a column of just seconds (1, 2, 3, etc.) for the injection_window dataframe. Let's do that now while we are already making new columns. 
+
+```{r}
+injection_window <- injection_window |>
+  mutate(time_s = row_number())
+```
+
+Now that we created a new column of ec_excess and seconds, let's plot it to make sure it still looks correct. It should look the exact same as earlier, but this time the EC values start at 0 and the x-axis should be in seconds starting at 0.
+
+```{r}
+injection_window |>
+  ggplot(aes(x = time_s, y = ec_excess)) +
+  geom_point()
+```
+
+Looks good! 
+
+## Convert from conductivity to concentration
+
+Now we are ready to apply our values from the calibration curve to calculate the concentration from the conductivity. 
+
+As a reminder, our calibration curve is y = 0.4319x + 17.7321
+
+- where y = EC
+- where x = NaCl concentration in g/5L
+
+So, x = (y - 17.7321) / 0.4319
+
+But since we did our calibrations in grams per 5 liters we need to convert from g/5L to g/L. You do this by dividing by 5000:
+
+x = (y - 17.7321) / 0.4319 / 5000
+
+To calculate the concentration, we need to apply this formula to our ec_excess column. We will create a new column called NaCl from this calculation. We will also replace any negative values with 0, same as before.  
+
+```{r}
+#calculate concentration
+injection_window <- injection_window |>
+  mutate(NaCl = (ec_excess - 17.7321) / 0.4319 / 5000)
+
+#replace any negative values with 0
+injection_window <- injection_window |>
+  mutate(NaCl = ifelse(NaCl < 0, 0, NaCl))
+```
+
+## Integration
+
+Now the fun part - integration.
+
+This is the standard trapezoid integration code set-up for the dilution gauging method. I followed steps outlined by Tim Covino, Professor at Montana State, in this code: https://tpcovino.github.io/Git_home/hydrology/3_dilution_gauging/R/dilution_5_3_22.html
 
 
+```{r}
+# trapezoid integration
+injection_window <- injection_window |>
+  mutate(
+    IntC_s1 = NaCl + lag(NaCl, default = 0),  # sum of consecutive points
+    IntC = cumsum(IntC_s1 * 0.5 * 1),     # trapezoid integration (g/L * time)
+    recovery = IntC / max(IntC)     # fraction of total tracer recovered
+  )
+```
 
+The hard part is done, now all we need to do is calculate the streamflow following the very basic formulation where:
 
+streamflow (Q) = mass of salt / (concentration * time)
+
+Q = g / (g/L * s)
+
+Q = L/s
+
+```{r}
+Q <- mass / max(injection_window$IntC)
+
+print(Q)
+```
+
+And that is it!
 
 # Summary
 
+We followed steps to calculate streamflow using the dilution tracer method. We first read in and cleaned data for the calibration curve. Through the processing steps we were able to calculate the slope (0.432) and intercept (17.7) to be used in the discharge calculations. 
 
+We then read in and cleaned data for the dilution calculations. We filtered the data for the injection window, calculated the background conductivity, found excess EC, converted conductivity to concentration, and integrated the breakthrough curve. We then found discharge by dividing the integration from the mass. 
+
+Through these steps, we found that the discharge for this data is 62.9 L/s. This is equivalent to 2.2 cubic feet per second, or 997 gallons per minute. 
 
 
