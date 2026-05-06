@@ -46,7 +46,7 @@ All datasets will be read in from a .csv file. Metadata sheets from the calibrat
 First we need to install and load in the packages needed.
 ```{r}
 #| output: false
-#uncomment any of these that you don't already have installed
+# uncomment any of these that you don't already have installed
 #install.packages("tidyverse") 
 #install.packages("hms")
 #install.packages("pracma")
@@ -59,13 +59,13 @@ library(pracma)
 library(knitr)
 ```
 
-Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water, it shows the salt intervals, and was the second test we conducted.
+Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water. The csv has the salt intervals, and is called test2 because it was the second test we conducted.
 ```{r}
 #| warning: false
 # create a new dataframe by reading in the csv file DI_roomtemp_intervals_test2.csv
 cal <- read_csv("DI_roomtemp_intervals_test2.csv", show_col_types = FALSE)
 
-head(cal)
+head(cal) # view the first rows of the dataset
 ```
 Hmmm... well that doesn't look right. Why don't we read in the csv, skip the first column so the data is properly categorized into columns, and only keep columns 2 through 4, which is the datetime, conductivity, and temperature. 
 
@@ -77,7 +77,7 @@ cal <- read_csv("DI_roomtemp_intervals_test2.csv",
                 col_select = 2:4,
                 show_col_types = FALSE)
 
-head(cal)
+head(cal) # view the first rows
 ```
 Okay that is better - but the column names are far too long and complicated. Let's fix that! We want column one to be titled "time", column 2 to be titled "conductivity_muS_cm", and column 3 to be "temperature_C". This gives informative titles that include the units of the measurements as well!
 
@@ -259,10 +259,13 @@ We have now successfully created a calibration curve and have extracted the slop
 Let's start by reading in the raw data in the same way we did for the calibration curve data (skip the first row, select only columns 2:4, and rename the columns to be more user friendly). The csv file is called "BC_EC_20260130.csv". The data was collected on January 30th, 2026.  
 
 ```{r}
-ec_data = read_csv("BC_EC_20260130.csv", 
+# Read in the data
+ec_data = read_csv("BC_EC_20260130.csv",
+                   show_col_types = FALSE,
                    skip = 1,
                    col_select = 2:4)
 
+# rename columns
 colnames(ec_data)[1] <- "time"
 colnames(ec_data)[2] <- "conductivity_muS_cm"
 colnames(ec_data)[3] <- "temperature_C"
@@ -271,6 +274,7 @@ colnames(ec_data)[3] <- "temperature_C"
 Again, let's convert the time column to a datetime. We also just need the time again, so let's create a new column called "time_only". 
 
 ```{r}
+# convert time column to datetime
 ec_data$time <- as.POSIXct(ec_data$time, format = "%m/%d/%y %I:%M:%S %p")
 ec_data$time_only <- as_hms(ec_data$time)
 ```
@@ -287,7 +291,7 @@ Now we need to define a couple variables that we can get from the metadata sheet
 
 - mass (in grams)
 - probe_in_time (the time the sensor was placed into the stream in hh:mm:ss)
-- injection time (the time the salt was injected into the stream in hh:mm:ss)
+- inj_time (the time the salt was injected into the stream in hh:mm:ss)
 - end_time (the time the sensor was taken out of the water in hh:mm:ss)
 
 ```{r}
@@ -304,18 +308,20 @@ probe_in_time <- "11:45:00"
 Alright, let's do an initial plot to visualize the data using ggplot. 
 
 ```{r}
+# plot to visualize data
 ec_data |>
   ggplot(aes(x = time, y = conductivity_muS_cm)) +
   geom_point()
 ```
 
-Cool! We can see the electrical conductivity before we put the sensor in, those are the dots with almost zero conductivity. Then we can once we put the sensor. But the most important thing, is that we can see the breakthrough curve!After the breakthrough curve, we see that the electrical conductivity goes back to the baseline of the water. That is a good sign that everything worked correctly, phew! 
+Cool! We can see the electrical conductivity before we put the sensor in, those are the dots with almost zero conductivity. Then we can see once we put the sensor in because the conductivity jumps up. But the most important thing is that we can see the breakthrough curve! After the breakthrough curve, we see that the electrical conductivity goes back to the baseline of the water. That is a good sign that everything worked correctly, phew! 
 
 ## Injection window
 
 Now we can filter the data to just the injection window, which is the time between when we put the salt in the stream and when we took the sensor out of the stream. We make this really easy by using the times we already defined earlier. 
 
 ```{r}
+# filter to just injection window
 injection_window <- ec_data |>
   filter(
     time_only > as_hms(inj_time) &
@@ -326,20 +332,22 @@ injection_window <- ec_data |>
 To make sure we did that correctly, let's do another very basic visualization plot. 
 
 ```{r}
+# plot injection window
 injection_window |>
   ggplot(aes(x = time, y = conductivity_muS_cm)) +
   geom_point()
 ```
 
-Great - we can see that just the breakthrough curve plus the tail is included. It is important to include the entire tail because some residual salt is still passing through. If you take the sensor out too early you can affect your discharge values. 
+Great - we can see that just the breakthrough curve plus the tail is included. It is important to include the entire tail because some residual salt is still passing through. If you take the sensor out too early it can affect your discharge values. 
 
 ## Background conductivity
 
-If you look at the graph you can see that the values start between 225 and 250 uS/cm. While those are the actual values of the stream, we want to correct for the background conductivity, or the natural electrical conductivity of the stream on its own. 
+If you look at the graph, you can see that the values start between 200 and 225 uS/cm. While those are the actual values of the stream, we want to correct for the background conductivity, or the natural electrical conductivity of the stream on its own. 
 
 To do this, we will filter from when we put the sensor in the water to when we put the salt in. 
 
 ```{r}
+# background correct breakthrough curve
 background_window <- ec_data |>
   filter(
     time_only > as_hms(probe_in_time) &
@@ -350,6 +358,7 @@ background_window <- ec_data |>
 Now that we have a new dataframe with the background conductivity, we need to find the average over that time period.
 
 ```{r}
+# average background conductivity
 avg_background <- mean(background_window$conductivity_muS_cm, na.rm = TRUE)
 
 print(avg_background)
@@ -360,6 +369,7 @@ Cool - the background conductivity of the stream is 211.99.
 We now need to calculate the electrical conductivity corrected to the background conductivity. To do so, we will subtract the avg_background from  conductivity_muS_cm and create a new column called ec_excess. We don't want those values to be negative, so let's do a simple ifelse statement where if the value is less than 0, replace it with 0. If it isn't keep the original value. 
 
 ```{r}
+# calculate EC by subtracting the background conductivity
 injection_window <- injection_window |>
   mutate(ec_excess = conductivity_muS_cm - avg_background) |> # create new column called ec_excess
   mutate(ec_excess = ifelse(ec_excess < 0, 0, ec_excess)) # this avoids any negative values
@@ -368,13 +378,21 @@ injection_window <- injection_window |>
 To integrate later, we will need a column of just seconds (1, 2, 3, etc.) for the injection_window dataframe. Let's do that now while we are already making new columns. 
 
 ```{r}
+#create a column of seconds
 injection_window <- injection_window |>
   mutate(time_s = row_number())
 ```
 
-Now that we created a new column of ec_excess and seconds, let's plot it to make sure it still looks correct. It should look the exact same as earlier, but this time the EC values start at 0 and the x-axis should be in seconds starting at 0.
+Let's check to make sure that all worked correctly.
 
 ```{r}
+kable(head(injection_window))
+```
+
+Great. Now that we created a new column of ec_excess and seconds, let's plot it to make sure it still looks correct. It should look the exact same as earlier, but this time the EC values start at 0 and the x-axis should be in seconds starting at 0.
+
+```{r}
+# plot to see it corrected vs seconds
 injection_window |>
   ggplot(aes(x = time_s, y = ec_excess)) +
   geom_point()
@@ -393,6 +411,10 @@ As a reminder, our calibration curve is y = 0.4319x + 17.7321
 
 So, x = (y - 17.7321) / 0.4319
 
+17.7321 is the intercept
+
+0.4319 is the slope
+
 But since we did our calibrations in grams per 5 liters we need to convert from g/5L to g/L. You do this by dividing by 5000:
 
 x = (y - 17.7321) / 0.4319 / 5000
@@ -402,7 +424,7 @@ To calculate the concentration, we need to apply this formula to our ec_excess c
 ```{r}
 #calculate concentration
 injection_window <- injection_window |>
-  mutate(NaCl = (ec_excess - 17.7321) / 0.4319 / 5000)
+  mutate(NaCl = (ec_excess - intercept) / slope / 5000)
 
 #replace any negative values with 0
 injection_window <- injection_window |>
@@ -449,5 +471,176 @@ We followed steps to calculate streamflow using the dilution tracer method. We f
 We then read in and cleaned data for the dilution calculations. We filtered the data for the injection window, calculated the background conductivity, found excess EC, converted conductivity to concentration, and integrated the breakthrough curve. We then found discharge by dividing the integration from the mass. 
 
 Through these steps, we found that the discharge for this data is 62.9 L/s. This is equivalent to 2.2 cubic feet per second, or 997 gallons per minute. 
+
+# Full code
+
+```{r}
+#| eval: FALSE
+# load in the libraries
+library(tidyverse)
+library(hms)
+library(pracma)
+library(knitr)
+
+# Calibration curve 
+
+# read in the calibration curve data
+cal <- read_csv("DI_roomtemp_intervals_test2.csv",
+                skip = 1,
+                col_select = 2:4,
+                show_col_types = FALSE)
+
+#Clean up column names
+colnames(cal)[1] <- "time"
+colnames(cal)[2] <- "conductivity_muS_cm"
+colnames(cal)[3] <- "temperature_C"
+
+# convert time column to datetime
+cal$time <- as.POSIXct(cal$time, format = "%m/%d/%y %I:%M:%S %p")
+cal$time_only <- as_hms(cal$time)
+
+#calculate average conductivity from 11:34 to 11:38
+# this is 0 g added salt
+cal_subset <- cal[
+  cal$time_only >= as_hms("11:34:00") & 
+  cal$time_only <= as_hms("11:38:00"), ]
+avg_0g <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
+
+#repeat for 11:43 to 11:46
+#this is 0.5 g of added salt
+cal_subset <- cal[
+  cal$time_only >= as_hms("11:43:00") & 
+  cal$time_only <= as_hms("11:46:00"), ]
+avg_500mg <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
+
+#repeat for 11:50 to 11:53
+#this is 1.0 g of added salt
+cal_subset <- cal[
+  cal$time_only >= as_hms("11:50:00") & 
+  cal$time_only <= as_hms("11:53:00"), ]
+avg_1000mg <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
+
+
+#repeat for 11:56 to 11:59
+#this is 1.5 g of added salt
+cal_subset <- cal[
+  cal$time_only >= as_hms("11:56:00") & 
+  cal$time_only <= as_hms("11:59:00"), ]
+avg_1500mg <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
+
+# repeat for 12:02 to 12:05
+#this is 2.0 g of added salt
+cal_subset <- cal[
+  cal$time_only >= as_hms("12:02:00") & 
+  cal$time_only <= as_hms("12:05:00"), ]
+avg_2000mg <- mean(cal_subset$conductivity_muS_cm, na.rm = TRUE)
+
+#put the salt values into a list
+milligram_values <- c(0, 500, 1000, 1500, 2000) 
+
+#use the average conductivity values we generated earlier and put them into a list
+conductivity_values <- c(avg_0g, avg_500mg, avg_1000mg, avg_1500mg, avg_2000mg)
+
+#Linear regression for data
+plot(milligram_values, conductivity_values)
+model <- lm(conductivity_values ~ milligram_values)
+abline(model, col = "red")
+
+#pull out slope and intercept
+slope <- coef(model)[2] #pulls out just slope
+intercept <- coef(model)[1] #pulls out just intercept
+
+#display slope and intercept
+cat("Slope:", slope, "\n")
+cat("Intercept:", intercept, "\n")
+
+# Discharge Calculations
+
+# Read in the data
+ec_data = read_csv("BC_EC_20260130.csv",
+                   show_col_types = FALSE,
+                   skip = 1,
+                   col_select = 2:4)
+
+colnames(ec_data)[1] <- "time"
+colnames(ec_data)[2] <- "conductivity_muS_cm"
+colnames(ec_data)[3] <- "temperature_C"
+
+# convert time column to datetime
+ec_data$time <- as.POSIXct(ec_data$time, format = "%m/%d/%y %I:%M:%S %p")
+ec_data$time_only <- as_hms(ec_data$time)
+
+# Information from the metadata sheet
+mass <- 600
+
+inj_time <- "11:57:00"
+
+end_time <- "12:25:00"
+
+probe_in_time <- "11:45:00"
+
+# plot to visualize data
+ec_data |>
+  ggplot(aes(x = time, y = conductivity_muS_cm)) +
+  geom_point()
+
+# filter to just injection window
+injection_window <- ec_data |>
+  filter(
+    time_only > as_hms(inj_time) &
+      time_only < as_hms(end_time)
+  )
+
+# plot injection window
+injection_window |>
+  ggplot(aes(x = time, y = conductivity_muS_cm)) +
+  geom_point()
+
+# background correct breakthrough curve
+background_window <- ec_data |>
+  filter(
+    time_only > as_hms(probe_in_time) &
+      time_only < as_hms(inj_time)
+  )
+
+# average background conductivity
+avg_background <- mean(background_window$conductivity_muS_cm, na.rm = TRUE)
+
+# calculate EC by subtracting the background conductivity
+injection_window <- injection_window |>
+  mutate(ec_excess = conductivity_muS_cm - avg_background) |> # create new column called ec_excess
+  mutate(ec_excess = ifelse(ec_excess < 0, 0, ec_excess)) # this avoids any negative values
+
+#create a column of seconds
+injection_window <- injection_window |>
+  mutate(time_s = row_number())
+
+# plot to see it corrected vs seconds
+injection_window |>
+  ggplot(aes(x = time_s, y = ec_excess)) +
+  geom_point()
+
+#calculate concentration
+injection_window <- injection_window |>
+  mutate(NaCl = (ec_excess - intercept) / slope / 5000)
+
+#replace any negative values with 0
+injection_window <- injection_window |>
+  mutate(NaCl = ifelse(NaCl < 0, 0, NaCl))
+
+# trapezoid integration
+injection_window <- injection_window |>
+  mutate(
+    IntC_s1 = NaCl + lag(NaCl, default = 0),  # sum of consecutive points
+    IntC = cumsum(IntC_s1 * 0.5 * 1),     # trapezoid integration (g/L * time)
+    recovery = IntC / max(IntC)     # fraction of total tracer recovered
+  )
+
+# calculate discharge
+Q <- mass / max(injection_window$IntC)
+
+print(Q)
+```
+
 
 

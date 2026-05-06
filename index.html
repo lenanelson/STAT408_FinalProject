@@ -2264,7 +2264,7 @@ vertical-align: -.125em;
 <h2 class="anchored" data-anchor-id="read-in-the-data">Read in the data</h2>
 <p>First we need to install and load in the packages needed.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#uncomment any of these that you don&#39;t already have installed</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># uncomment any of these that you don&#39;t already have installed</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;tidyverse&quot;) </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;hms&quot;)</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;pracma&quot;)</span></span>
@@ -2276,12 +2276,12 @@ vertical-align: -.125em;
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pracma)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water, it shows the salt intervals, and was the second test we conducted.</p>
+<p>Now we can read in DI_intervals_test2.csv. The data collected in this csv was from DI water. The csv has the salt intervals, and is called test2 because it was the second test we conducted.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a new dataframe by reading in the csv file DI_roomtemp_intervals_test2.csv</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cal <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;DI_roomtemp_intervals_test2.csv&quot;</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal) <span class="co"># view the first rows of the dataset</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 1
   `Plot Title: BridgerCreek_EC`                                                 
@@ -2302,7 +2302,7 @@ vertical-align: -.125em;
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cal) <span class="co"># view the first rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   `Date Time, GMT-06:00` Full Range, μS/cm (LGR S/N: 10…¹ Temp, °C (LGR S/N: 1…²
@@ -2624,31 +2624,26 @@ F-statistic:  9962 on 1 and 3 DF,  p-value: 2.217e-06</code></pre>
 <h2 class="anchored" data-anchor-id="read-in-the-data-1">Read in the data</h2>
 <p>Let’s start by reading in the raw data in the same way we did for the calibration curve data (skip the first row, select only columns 2:4, and rename the columns to be more user friendly). The csv file is called “BC_EC_20260130.csv”. The data was collected on January 30th, 2026.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>ec_data <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&quot;BC_EC_20260130.csv&quot;</span>, </span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">skip =</span> <span class="dv">1</span>,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 6088 Columns: 3
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: &quot;,&quot;
-chr (1): Date Time, GMT-07:00
-dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ...
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;time&quot;</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;conductivity_muS_cm&quot;</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;temperature_C&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the data</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>ec_data <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&quot;BC_EC_20260130.csv&quot;</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># rename columns</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;time&quot;</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;conductivity_muS_cm&quot;</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;temperature_C&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Again, let’s convert the time column to a datetime. We also just need the time again, so let’s create a new column called “time_only”.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(ec_data<span class="sc">$</span>time, <span class="at">format =</span> <span class="st">&quot;%m/%d/%y %I:%M:%S %p&quot;</span>)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time_only <span class="ot">&lt;-</span> <span class="fu">as_hms</span>(ec_data<span class="sc">$</span>time)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert time column to datetime</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(ec_data<span class="sc">$</span>time, <span class="at">format =</span> <span class="st">&quot;%m/%d/%y %I:%M:%S %p&quot;</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time_only <span class="ot">&lt;-</span> <span class="fu">as_hms</span>(ec_data<span class="sc">$</span>time)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Check to make sure it looks correct.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(ec_data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(ec_data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <thead>
@@ -2705,24 +2700,25 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 <ul>
 <li>mass (in grams)</li>
 <li>probe_in_time (the time the sensor was placed into the stream in hh:mm:ss)</li>
-<li>injection time (the time the salt was injected into the stream in hh:mm:ss)</li>
+<li>inj_time (the time the salt was injected into the stream in hh:mm:ss)</li>
 <li>end_time (the time the sensor was taken out of the water in hh:mm:ss)</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Information from the metadata sheet</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>mass <span class="ot">&lt;-</span> <span class="dv">600</span></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>inj_time <span class="ot">&lt;-</span> <span class="st">&quot;11:57:00&quot;</span></span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="st">&quot;12:25:00&quot;</span></span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>probe_in_time <span class="ot">&lt;-</span> <span class="st">&quot;11:45:00&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Information from the metadata sheet</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>mass <span class="ot">&lt;-</span> <span class="dv">600</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>inj_time <span class="ot">&lt;-</span> <span class="st">&quot;11:57:00&quot;</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="st">&quot;12:25:00&quot;</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>probe_in_time <span class="ot">&lt;-</span> <span class="st">&quot;11:45:00&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Alright, let’s do an initial plot to visualize the data using ggplot.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>ec_data <span class="sc">|&gt;</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot to visualize data</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>ec_data <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2731,23 +2727,25 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 </div>
 </div>
 </div>
-<p>Cool! We can see the electrical conductivity before we put the sensor in, those are the dots with almost zero conductivity. Then we can once we put the sensor. But the most important thing, is that we can see the breakthrough curve!After the breakthrough curve, we see that the electrical conductivity goes back to the baseline of the water. That is a good sign that everything worked correctly, phew!</p>
+<p>Cool! We can see the electrical conductivity before we put the sensor in, those are the dots with almost zero conductivity. Then we can see once we put the sensor in because the conductivity jumps up. But the most important thing is that we can see the breakthrough curve! After the breakthrough curve, we see that the electrical conductivity goes back to the baseline of the water. That is a good sign that everything worked correctly, phew!</p>
 </section>
 <section id="injection-window" class="level2">
 <h2 class="anchored" data-anchor-id="injection-window">Injection window</h2>
 <p>Now we can filter the data to just the injection window, which is the time between when we put the salt in the stream and when we took the sensor out of the stream. We make this really easy by using the times we already defined earlier.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(inj_time) <span class="sc">&amp;</span></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(end_time)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># filter to just injection window</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(inj_time) <span class="sc">&amp;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(end_time)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To make sure we did that correctly, let’s do another very basic visualization plot.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot injection window</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2756,24 +2754,26 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 </div>
 </div>
 </div>
-<p>Great - we can see that just the breakthrough curve plus the tail is included. It is important to include the entire tail because some residual salt is still passing through. If you take the sensor out too early you can affect your discharge values.</p>
+<p>Great - we can see that just the breakthrough curve plus the tail is included. It is important to include the entire tail because some residual salt is still passing through. If you take the sensor out too early it can affect your discharge values.</p>
 </section>
 <section id="background-conductivity" class="level2">
 <h2 class="anchored" data-anchor-id="background-conductivity">Background conductivity</h2>
-<p>If you look at the graph you can see that the values start between 225 and 250 uS/cm. While those are the actual values of the stream, we want to correct for the background conductivity, or the natural electrical conductivity of the stream on its own.</p>
+<p>If you look at the graph, you can see that the values start between 200 and 225 uS/cm. While those are the actual values of the stream, we want to correct for the background conductivity, or the natural electrical conductivity of the stream on its own.</p>
 <p>To do this, we will filter from when we put the sensor in the water to when we put the salt in.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>background_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(probe_in_time) <span class="sc">&amp;</span></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(inj_time)</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># background correct breakthrough curve</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>background_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(probe_in_time) <span class="sc">&amp;</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(inj_time)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now that we have a new dataframe with the background conductivity, we need to find the average over that time period.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>avg_background <span class="ot">&lt;-</span> <span class="fu">mean</span>(background_window<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_background)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average background conductivity</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>avg_background <span class="ot">&lt;-</span> <span class="fu">mean</span>(background_window<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(avg_background)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 211.9864</code></pre>
 </div>
@@ -2781,20 +2781,99 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 <p>Cool - the background conductivity of the stream is 211.99.</p>
 <p>We now need to calculate the electrical conductivity corrected to the background conductivity. To do so, we will subtract the avg_background from conductivity_muS_cm and create a new column called ec_excess. We don’t want those values to be negative, so let’s do a simple ifelse statement where if the value is less than 0, replace it with 0. If it isn’t keep the original value.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> conductivity_muS_cm <span class="sc">-</span> avg_background) <span class="sc">|&gt;</span> <span class="co"># create new column called ec_excess</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> <span class="fu">ifelse</span>(ec_excess <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, ec_excess)) <span class="co"># this avoids any negative values</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate EC by subtracting the background conductivity</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> conductivity_muS_cm <span class="sc">-</span> avg_background) <span class="sc">|&gt;</span> <span class="co"># create new column called ec_excess</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> <span class="fu">ifelse</span>(ec_excess <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, ec_excess)) <span class="co"># this avoids any negative values</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To integrate later, we will need a column of just seconds (1, 2, 3, etc.) for the injection_window dataframe. Let’s do that now while we are already making new columns.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_s =</span> <span class="fu">row_number</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create a column of seconds</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_s =</span> <span class="fu">row_number</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Now that we created a new column of ec_excess and seconds, let’s plot it to make sure it still looks correct. It should look the exact same as earlier, but this time the EC values start at 0 and the x-axis should be in seconds starting at 0.</p>
+<p>Let’s check to make sure that all worked correctly.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_s, <span class="at">y =</span> ec_excess)) <span class="sc">+</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(injection_window))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 24%">
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">time</th>
+<th style="text-align: right;">conductivity_muS_cm</th>
+<th style="text-align: right;">temperature_C</th>
+<th style="text-align: left;">time_only</th>
+<th style="text-align: right;">ec_excess</th>
+<th style="text-align: right;">time_s</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2026-01-30 11:57:01</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: left;">11:57:01</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2026-01-30 11:57:02</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: left;">11:57:02</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2026-01-30 11:57:03</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: left;">11:57:03</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2026-01-30 11:57:04</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: left;">11:57:04</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2026-01-30 11:57:05</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: left;">11:57:05</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2026-01-30 11:57:06</td>
+<td style="text-align: right;">212.2</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: left;">11:57:06</td>
+<td style="text-align: right;">0.21363</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Great. Now that we created a new column of ec_excess and seconds, let’s plot it to make sure it still looks correct. It should look the exact same as earlier, but this time the EC values start at 0 and the x-axis should be in seconds starting at 0.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot to see it corrected vs seconds</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_s, <span class="at">y =</span> ec_excess)) <span class="sc">+</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2814,17 +2893,19 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 <li>where x = NaCl concentration in g/5L</li>
 </ul>
 <p>So, x = (y - 17.7321) / 0.4319</p>
+<p>17.7321 is the intercept</p>
+<p>0.4319 is the slope</p>
 <p>But since we did our calibrations in grams per 5 liters we need to convert from g/5L to g/L. You do this by dividing by 5000:</p>
 <p>x = (y - 17.7321) / 0.4319 / 5000</p>
 <p>To calculate the concentration, we need to apply this formula to our ec_excess column. We will create a new column called NaCl from this calculation. We will also replace any negative values with 0, same as before.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate concentration</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> (ec_excess <span class="sc">-</span> <span class="fl">17.7321</span>) <span class="sc">/</span> <span class="fl">0.4319</span> <span class="sc">/</span> <span class="dv">5000</span>)</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="co">#replace any negative values with 0</span></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> <span class="fu">ifelse</span>(NaCl <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, NaCl))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate concentration</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> (ec_excess <span class="sc">-</span> intercept) <span class="sc">/</span> slope <span class="sc">/</span> <span class="dv">5000</span>)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="co">#replace any negative values with 0</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> <span class="fu">ifelse</span>(NaCl <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, NaCl))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="integration" class="level2">
@@ -2832,24 +2913,24 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 <p>Now the fun part - integration.</p>
 <p>This is the standard trapezoid integration code set-up for the dilution gauging method. I followed steps outlined by Tim Covino, Professor at Montana State, in this code: https://tpcovino.github.io/Git_home/hydrology/3_dilution_gauging/R/dilution_5_3_22.html</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trapezoid integration</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC_s1 =</span> NaCl <span class="sc">+</span> <span class="fu">lag</span>(NaCl, <span class="at">default =</span> <span class="dv">0</span>),  <span class="co"># sum of consecutive points</span></span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC =</span> <span class="fu">cumsum</span>(IntC_s1 <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="dv">1</span>),     <span class="co"># trapezoid integration (g/L * time)</span></span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">recovery =</span> IntC <span class="sc">/</span> <span class="fu">max</span>(IntC)     <span class="co"># fraction of total tracer recovered</span></span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trapezoid integration</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC_s1 =</span> NaCl <span class="sc">+</span> <span class="fu">lag</span>(NaCl, <span class="at">default =</span> <span class="dv">0</span>),  <span class="co"># sum of consecutive points</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC =</span> <span class="fu">cumsum</span>(IntC_s1 <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="dv">1</span>),     <span class="co"># trapezoid integration (g/L * time)</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">recovery =</span> IntC <span class="sc">/</span> <span class="fu">max</span>(IntC)     <span class="co"># fraction of total tracer recovered</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The hard part is done, now all we need to do is calculate the streamflow following the very basic formulation where:</p>
 <p>streamflow (Q) = mass of salt / (concentration * time)</p>
 <p>Q = g / (g/L * s)</p>
 <p>Q = L/s</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>Q <span class="ot">&lt;-</span> mass <span class="sc">/</span> <span class="fu">max</span>(injection_window<span class="sc">$</span>IntC)</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Q <span class="ot">&lt;-</span> mass <span class="sc">/</span> <span class="fu">max</span>(injection_window<span class="sc">$</span>IntC)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 62.86651</code></pre>
+<pre><code>[1] 62.87469</code></pre>
 </div>
 </div>
 <p>And that is it!</p>
@@ -2860,6 +2941,175 @@ dbl (2): Full Range, μS/cm (LGR S/N: 10778332, SEN S/N: 10778332), Temp, °C ..
 <p>We followed steps to calculate streamflow using the dilution tracer method. We first read in and cleaned data for the calibration curve. Through the processing steps we were able to calculate the slope (0.432) and intercept (17.7) to be used in the discharge calculations.</p>
 <p>We then read in and cleaned data for the dilution calculations. We filtered the data for the injection window, calculated the background conductivity, found excess EC, converted conductivity to concentration, and integrated the breakthrough curve. We then found discharge by dividing the integration from the mass.</p>
 <p>Through these steps, we found that the discharge for this data is 62.9 L/s. This is equivalent to 2.2 cubic feet per second, or 997 gallons per minute.</p>
+</section>
+<section id="full-code" class="level1">
+<h1>Full code</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load in the libraries</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hms)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pracma)</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calibration curve </span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the calibration curve data</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>cal <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;DI_roomtemp_intervals_test2.csv&quot;</span>,</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Clean up column names</span></span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;time&quot;</span></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;conductivity_muS_cm&quot;</span></span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cal)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;temperature_C&quot;</span></span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a><span class="co"># convert time column to datetime</span></span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>cal<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(cal<span class="sc">$</span>time, <span class="at">format =</span> <span class="st">&quot;%m/%d/%y %I:%M:%S %p&quot;</span>)</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>cal<span class="sc">$</span>time_only <span class="ot">&lt;-</span> <span class="fu">as_hms</span>(cal<span class="sc">$</span>time)</span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate average conductivity from 11:34 to 11:38</span></span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a><span class="co"># this is 0 g added salt</span></span>
+<span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:34:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:38:00&quot;</span>), ]</span>
+<span id="cb54-29"><a href="#cb54-29" aria-hidden="true" tabindex="-1"></a>avg_0g <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-30"><a href="#cb54-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-31"><a href="#cb54-31" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:43 to 11:46</span></span>
+<span id="cb54-32"><a href="#cb54-32" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 0.5 g of added salt</span></span>
+<span id="cb54-33"><a href="#cb54-33" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb54-34"><a href="#cb54-34" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:43:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb54-35"><a href="#cb54-35" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:46:00&quot;</span>), ]</span>
+<span id="cb54-36"><a href="#cb54-36" aria-hidden="true" tabindex="-1"></a>avg_500mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-37"><a href="#cb54-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-38"><a href="#cb54-38" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:50 to 11:53</span></span>
+<span id="cb54-39"><a href="#cb54-39" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 1.0 g of added salt</span></span>
+<span id="cb54-40"><a href="#cb54-40" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb54-41"><a href="#cb54-41" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:50:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb54-42"><a href="#cb54-42" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:53:00&quot;</span>), ]</span>
+<span id="cb54-43"><a href="#cb54-43" aria-hidden="true" tabindex="-1"></a>avg_1000mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-44"><a href="#cb54-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-45"><a href="#cb54-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-46"><a href="#cb54-46" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat for 11:56 to 11:59</span></span>
+<span id="cb54-47"><a href="#cb54-47" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 1.5 g of added salt</span></span>
+<span id="cb54-48"><a href="#cb54-48" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb54-49"><a href="#cb54-49" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:56:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb54-50"><a href="#cb54-50" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;11:59:00&quot;</span>), ]</span>
+<span id="cb54-51"><a href="#cb54-51" aria-hidden="true" tabindex="-1"></a>avg_1500mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-52"><a href="#cb54-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-53"><a href="#cb54-53" aria-hidden="true" tabindex="-1"></a><span class="co"># repeat for 12:02 to 12:05</span></span>
+<span id="cb54-54"><a href="#cb54-54" aria-hidden="true" tabindex="-1"></a><span class="co">#this is 2.0 g of added salt</span></span>
+<span id="cb54-55"><a href="#cb54-55" aria-hidden="true" tabindex="-1"></a>cal_subset <span class="ot">&lt;-</span> cal[</span>
+<span id="cb54-56"><a href="#cb54-56" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&gt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;12:02:00&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb54-57"><a href="#cb54-57" aria-hidden="true" tabindex="-1"></a>  cal<span class="sc">$</span>time_only <span class="sc">&lt;=</span> <span class="fu">as_hms</span>(<span class="st">&quot;12:05:00&quot;</span>), ]</span>
+<span id="cb54-58"><a href="#cb54-58" aria-hidden="true" tabindex="-1"></a>avg_2000mg <span class="ot">&lt;-</span> <span class="fu">mean</span>(cal_subset<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-59"><a href="#cb54-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-60"><a href="#cb54-60" aria-hidden="true" tabindex="-1"></a><span class="co">#put the salt values into a list</span></span>
+<span id="cb54-61"><a href="#cb54-61" aria-hidden="true" tabindex="-1"></a>milligram_values <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>, <span class="dv">1000</span>, <span class="dv">1500</span>, <span class="dv">2000</span>) </span>
+<span id="cb54-62"><a href="#cb54-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-63"><a href="#cb54-63" aria-hidden="true" tabindex="-1"></a><span class="co">#use the average conductivity values we generated earlier and put them into a list</span></span>
+<span id="cb54-64"><a href="#cb54-64" aria-hidden="true" tabindex="-1"></a>conductivity_values <span class="ot">&lt;-</span> <span class="fu">c</span>(avg_0g, avg_500mg, avg_1000mg, avg_1500mg, avg_2000mg)</span>
+<span id="cb54-65"><a href="#cb54-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-66"><a href="#cb54-66" aria-hidden="true" tabindex="-1"></a><span class="co">#Linear regression for data</span></span>
+<span id="cb54-67"><a href="#cb54-67" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(milligram_values, conductivity_values)</span>
+<span id="cb54-68"><a href="#cb54-68" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(conductivity_values <span class="sc">~</span> milligram_values)</span>
+<span id="cb54-69"><a href="#cb54-69" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(model, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb54-70"><a href="#cb54-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-71"><a href="#cb54-71" aria-hidden="true" tabindex="-1"></a><span class="co">#pull out slope and intercept</span></span>
+<span id="cb54-72"><a href="#cb54-72" aria-hidden="true" tabindex="-1"></a>slope <span class="ot">&lt;-</span> <span class="fu">coef</span>(model)[<span class="dv">2</span>] <span class="co">#pulls out just slope</span></span>
+<span id="cb54-73"><a href="#cb54-73" aria-hidden="true" tabindex="-1"></a>intercept <span class="ot">&lt;-</span> <span class="fu">coef</span>(model)[<span class="dv">1</span>] <span class="co">#pulls out just intercept</span></span>
+<span id="cb54-74"><a href="#cb54-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-75"><a href="#cb54-75" aria-hidden="true" tabindex="-1"></a><span class="co">#display slope and intercept</span></span>
+<span id="cb54-76"><a href="#cb54-76" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Slope:&quot;</span>, slope, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb54-77"><a href="#cb54-77" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Intercept:&quot;</span>, intercept, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb54-78"><a href="#cb54-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-79"><a href="#cb54-79" aria-hidden="true" tabindex="-1"></a><span class="co"># Discharge Calculations</span></span>
+<span id="cb54-80"><a href="#cb54-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-81"><a href="#cb54-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the data</span></span>
+<span id="cb54-82"><a href="#cb54-82" aria-hidden="true" tabindex="-1"></a>ec_data <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&quot;BC_EC_20260130.csv&quot;</span>,</span>
+<span id="cb54-83"><a href="#cb54-83" aria-hidden="true" tabindex="-1"></a>                   <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb54-84"><a href="#cb54-84" aria-hidden="true" tabindex="-1"></a>                   <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb54-85"><a href="#cb54-85" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_select =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)</span>
+<span id="cb54-86"><a href="#cb54-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-87"><a href="#cb54-87" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;time&quot;</span></span>
+<span id="cb54-88"><a href="#cb54-88" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;conductivity_muS_cm&quot;</span></span>
+<span id="cb54-89"><a href="#cb54-89" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(ec_data)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;temperature_C&quot;</span></span>
+<span id="cb54-90"><a href="#cb54-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-91"><a href="#cb54-91" aria-hidden="true" tabindex="-1"></a><span class="co"># convert time column to datetime</span></span>
+<span id="cb54-92"><a href="#cb54-92" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(ec_data<span class="sc">$</span>time, <span class="at">format =</span> <span class="st">&quot;%m/%d/%y %I:%M:%S %p&quot;</span>)</span>
+<span id="cb54-93"><a href="#cb54-93" aria-hidden="true" tabindex="-1"></a>ec_data<span class="sc">$</span>time_only <span class="ot">&lt;-</span> <span class="fu">as_hms</span>(ec_data<span class="sc">$</span>time)</span>
+<span id="cb54-94"><a href="#cb54-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-95"><a href="#cb54-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Information from the metadata sheet</span></span>
+<span id="cb54-96"><a href="#cb54-96" aria-hidden="true" tabindex="-1"></a>mass <span class="ot">&lt;-</span> <span class="dv">600</span></span>
+<span id="cb54-97"><a href="#cb54-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-98"><a href="#cb54-98" aria-hidden="true" tabindex="-1"></a>inj_time <span class="ot">&lt;-</span> <span class="st">&quot;11:57:00&quot;</span></span>
+<span id="cb54-99"><a href="#cb54-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-100"><a href="#cb54-100" aria-hidden="true" tabindex="-1"></a>end_time <span class="ot">&lt;-</span> <span class="st">&quot;12:25:00&quot;</span></span>
+<span id="cb54-101"><a href="#cb54-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-102"><a href="#cb54-102" aria-hidden="true" tabindex="-1"></a>probe_in_time <span class="ot">&lt;-</span> <span class="st">&quot;11:45:00&quot;</span></span>
+<span id="cb54-103"><a href="#cb54-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-104"><a href="#cb54-104" aria-hidden="true" tabindex="-1"></a><span class="co"># plot to visualize data</span></span>
+<span id="cb54-105"><a href="#cb54-105" aria-hidden="true" tabindex="-1"></a>ec_data <span class="sc">|&gt;</span></span>
+<span id="cb54-106"><a href="#cb54-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
+<span id="cb54-107"><a href="#cb54-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
+<span id="cb54-108"><a href="#cb54-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-109"><a href="#cb54-109" aria-hidden="true" tabindex="-1"></a><span class="co"># filter to just injection window</span></span>
+<span id="cb54-110"><a href="#cb54-110" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
+<span id="cb54-111"><a href="#cb54-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb54-112"><a href="#cb54-112" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(inj_time) <span class="sc">&amp;</span></span>
+<span id="cb54-113"><a href="#cb54-113" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(end_time)</span>
+<span id="cb54-114"><a href="#cb54-114" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-115"><a href="#cb54-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-116"><a href="#cb54-116" aria-hidden="true" tabindex="-1"></a><span class="co"># plot injection window</span></span>
+<span id="cb54-117"><a href="#cb54-117" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-118"><a href="#cb54-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> conductivity_muS_cm)) <span class="sc">+</span></span>
+<span id="cb54-119"><a href="#cb54-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
+<span id="cb54-120"><a href="#cb54-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-121"><a href="#cb54-121" aria-hidden="true" tabindex="-1"></a><span class="co"># background correct breakthrough curve</span></span>
+<span id="cb54-122"><a href="#cb54-122" aria-hidden="true" tabindex="-1"></a>background_window <span class="ot">&lt;-</span> ec_data <span class="sc">|&gt;</span></span>
+<span id="cb54-123"><a href="#cb54-123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb54-124"><a href="#cb54-124" aria-hidden="true" tabindex="-1"></a>    time_only <span class="sc">&gt;</span> <span class="fu">as_hms</span>(probe_in_time) <span class="sc">&amp;</span></span>
+<span id="cb54-125"><a href="#cb54-125" aria-hidden="true" tabindex="-1"></a>      time_only <span class="sc">&lt;</span> <span class="fu">as_hms</span>(inj_time)</span>
+<span id="cb54-126"><a href="#cb54-126" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-127"><a href="#cb54-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-128"><a href="#cb54-128" aria-hidden="true" tabindex="-1"></a><span class="co"># average background conductivity</span></span>
+<span id="cb54-129"><a href="#cb54-129" aria-hidden="true" tabindex="-1"></a>avg_background <span class="ot">&lt;-</span> <span class="fu">mean</span>(background_window<span class="sc">$</span>conductivity_muS_cm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-130"><a href="#cb54-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-131"><a href="#cb54-131" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate EC by subtracting the background conductivity</span></span>
+<span id="cb54-132"><a href="#cb54-132" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-133"><a href="#cb54-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> conductivity_muS_cm <span class="sc">-</span> avg_background) <span class="sc">|&gt;</span> <span class="co"># create new column called ec_excess</span></span>
+<span id="cb54-134"><a href="#cb54-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ec_excess =</span> <span class="fu">ifelse</span>(ec_excess <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, ec_excess)) <span class="co"># this avoids any negative values</span></span>
+<span id="cb54-135"><a href="#cb54-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-136"><a href="#cb54-136" aria-hidden="true" tabindex="-1"></a><span class="co">#create a column of seconds</span></span>
+<span id="cb54-137"><a href="#cb54-137" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-138"><a href="#cb54-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_s =</span> <span class="fu">row_number</span>())</span>
+<span id="cb54-139"><a href="#cb54-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-140"><a href="#cb54-140" aria-hidden="true" tabindex="-1"></a><span class="co"># plot to see it corrected vs seconds</span></span>
+<span id="cb54-141"><a href="#cb54-141" aria-hidden="true" tabindex="-1"></a>injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-142"><a href="#cb54-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_s, <span class="at">y =</span> ec_excess)) <span class="sc">+</span></span>
+<span id="cb54-143"><a href="#cb54-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
+<span id="cb54-144"><a href="#cb54-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-145"><a href="#cb54-145" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate concentration</span></span>
+<span id="cb54-146"><a href="#cb54-146" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-147"><a href="#cb54-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> (ec_excess <span class="sc">-</span> intercept) <span class="sc">/</span> slope <span class="sc">/</span> <span class="dv">5000</span>)</span>
+<span id="cb54-148"><a href="#cb54-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-149"><a href="#cb54-149" aria-hidden="true" tabindex="-1"></a><span class="co">#replace any negative values with 0</span></span>
+<span id="cb54-150"><a href="#cb54-150" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-151"><a href="#cb54-151" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NaCl =</span> <span class="fu">ifelse</span>(NaCl <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, NaCl))</span>
+<span id="cb54-152"><a href="#cb54-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-153"><a href="#cb54-153" aria-hidden="true" tabindex="-1"></a><span class="co"># trapezoid integration</span></span>
+<span id="cb54-154"><a href="#cb54-154" aria-hidden="true" tabindex="-1"></a>injection_window <span class="ot">&lt;-</span> injection_window <span class="sc">|&gt;</span></span>
+<span id="cb54-155"><a href="#cb54-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb54-156"><a href="#cb54-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC_s1 =</span> NaCl <span class="sc">+</span> <span class="fu">lag</span>(NaCl, <span class="at">default =</span> <span class="dv">0</span>),  <span class="co"># sum of consecutive points</span></span>
+<span id="cb54-157"><a href="#cb54-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">IntC =</span> <span class="fu">cumsum</span>(IntC_s1 <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="dv">1</span>),     <span class="co"># trapezoid integration (g/L * time)</span></span>
+<span id="cb54-158"><a href="#cb54-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">recovery =</span> IntC <span class="sc">/</span> <span class="fu">max</span>(IntC)     <span class="co"># fraction of total tracer recovered</span></span>
+<span id="cb54-159"><a href="#cb54-159" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-160"><a href="#cb54-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-161"><a href="#cb54-161" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate discharge</span></span>
+<span id="cb54-162"><a href="#cb54-162" aria-hidden="true" tabindex="-1"></a>Q <span class="ot">&lt;-</span> mass <span class="sc">/</span> <span class="fu">max</span>(injection_window<span class="sc">$</span>IntC)</span>
+<span id="cb54-163"><a href="#cb54-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-164"><a href="#cb54-164" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 
 </main>
